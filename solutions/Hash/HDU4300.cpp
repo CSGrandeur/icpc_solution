@@ -1,0 +1,88 @@
+/*
+这题的描述太烂。
+每组数据第一行 26 个字母对应的密文；
+第二行前半段是完整的密文，后半段是不一定完整的明文，但是从哪里分开并不知道。
+要求输出完整的密文+完整的明文
+
+这道题直观上应该用KMP相关知识去做。但是字符串哈希也可以。
+假设 x 是密文，y 是明文， z 是明文再次解密的错误文
+题目给出 串1
+
+```
+xxxxyyy
+```
+
+对它做一次解密，得到 串2
+
+```
+yyyyzzz
+```
+
+对串2 的后缀和 串1 的前缀分别判断哈希值是否相等，最长的相等串即明文长度。
+
+那么难点在于，怎么能 O(1) 得到串1 任意后缀、串2 任意前缀的哈希值呢？
+
+我们可以把字符串哈希当成 BASE 进制数（可以是26，不过最好选个质数），第i个位置的数，就是这个BASE进制数的第i位。
+
+对于十进制数，我们求低若干位的数，就是把高于这个位的数减去。对于BASE进制也一样，问题解决。
+
+用十进制举例，一个数是 12388834，另一个数是5348123
+取第一个数的高位 123
+取第二个数的低位，即减去 `5348 * 10^4`，得到 123，发现两个数的三位前后缀值一致。
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<algorithm>
+typedef unsigned long long ULL;
+const int MAXN = 100007;
+const ULL BASE = 29;
+char endct[30], dedct[30];
+char st[MAXN], bufDecode[MAXN];
+// 我们只存hash值，不在hash表中检索原值，所以不用限制哈希上界，直接用unsigned帮我们解决上界取模的事情。
+ULL hashValueSt[MAXN], hashValueBuf[MAXN], preBase[MAXN];
+int main()
+{
+    int t;
+    preBase[0] = 1;
+    for(int i = 1; i < MAXN; i ++)
+    {
+        preBase[i] = preBase[i - 1] * BASE;
+    }
+    for(scanf("%d", &t); t --; )
+    {
+        scanf("%s%s", endct, st);
+        for(int i = 0; endct[i]; i ++)
+            dedct[endct[i] - 'a'] = i + 'a';
+        for(int i = 0; st[i]; i ++)
+            bufDecode[i] = dedct[st[i] - 'a'];
+        hashValueSt[0] = st[0] - 'a';
+        hashValueBuf[0] = bufDecode[0] - 'a';
+        for(int i = 1; st[i]; i ++)
+        {
+            hashValueSt[i] = hashValueSt[i - 1] * BASE + (ULL)(st[i] - 'a');
+            hashValueBuf[i] = hashValueBuf[i - 1] * BASE + (ULL)(bufDecode[i] - 'a');
+        }
+        int slen = strlen(st);
+        int codeStr;
+        for(codeStr = (slen >> 1) - 1; codeStr >= 0; codeStr --)
+        {
+            // 原始串的后缀哈希值
+            ULL hvSt = hashValueSt[slen - 1] - hashValueSt[slen - 1 - codeStr - 1] * preBase[codeStr + 1];
+            // 解密串的前缀哈希值
+            ULL hvBuf = hashValueBuf[codeStr];
+            
+            if(hvSt == hvBuf)
+                break;
+        }
+        int ansLen = slen - codeStr - 1;
+        for(int i = 0; i < ansLen; i ++)
+            printf("%c", st[i]);
+        for(int i = 0; i < ansLen; i ++)
+            printf("%c", bufDecode[i]);
+        printf("\n");
+    }
+    return 0;
+}
+
