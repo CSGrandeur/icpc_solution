@@ -1,0 +1,75 @@
+// 此题重在分析规则
+// 1. 连通块作为一个个整体考虑，连通块用BFS实现
+// 2. 不接触北端的连通块，对结果不产生影响
+// 3. 同时接触南、北端的连通块如果存在，则“IMPOSSIBLE”
+// 4. 接触北端的连通块，如果接触西端，西端的南触点（点圆有两个交点）为潜在入口，如果接触东端，同理。
+// 5. 用每个接触北端连通块的东、西的南触点分别更新入点和出点。
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<math.h>
+#include<queue>
+#include<algorithm>
+const double eps = 1e-7;
+const double maxend = 1000;
+inline int dcomp(double x, double y) {return x - y < -eps ? -1 : (x - y > eps ? 1 : 0);}
+inline double Sqr(double x) {return x * x;}
+struct Circle
+{
+    double x;
+    double y;
+    double r;
+    bool TouchNorth() {return dcomp(y + r, maxend) >= 0;}
+    bool TouchSouth() {return dcomp(y - r, 0) <= 0;}
+    double Dis(const Circle &b) {return hypot(x - b.x, y - b.y);}
+    double Join(const Circle &b) {return dcomp(Dis(b), r + b.r) <= 0;}
+    double WestInter() {return dcomp(x - r, 0) <= 0 ? y - sqrt((Sqr(r) - Sqr(x))) : maxend;}
+    double EastInter() {return dcomp(x + r, maxend) >= 0 ? y - sqrt((Sqr(r) - Sqr(maxend - x))) : maxend;}
+};
+int n;
+Circle p[1100];
+bool vis[1100];
+void BFS()
+{
+    std::queue<int> q;
+    bool cannotGoFlag = false;
+    double ansWest = maxend, ansEast = maxend;
+    for(int i = 0; i < n; i ++)
+    {
+        vis[i] = false;
+        if(p[i].TouchNorth())
+            q.push(i), vis[i] = true;
+    }
+    while(!q.empty())
+    {
+        int now = q.front();
+        q.pop();
+        if(p[now].TouchSouth())
+        {
+            cannotGoFlag = true;
+            break;
+        }
+        ansWest = std::min(ansWest, p[now].WestInter());
+        ansEast = std::min(ansEast, p[now].EastInter());
+        for(int i = 0; i < n; i ++)
+        {
+            if(vis[i] || !p[i].Join(p[now])) continue;
+            vis[i] = true;
+            q.push(i);
+        }
+    }
+    if(cannotGoFlag)
+        printf("IMPOSSIBLE\n");
+    else
+        printf("%.2f %.2f %.2f %.2f\n", 0.0, ansWest, maxend, ansEast);
+}
+int main()
+{
+    while(scanf("%d", &n) != EOF)
+    {
+        for(int i = 0; i < n; i ++)
+            scanf("%lf%lf%lf", &p[i].x, &p[i].y, &p[i].r);
+        BFS();
+    }
+    return 0;
+}
