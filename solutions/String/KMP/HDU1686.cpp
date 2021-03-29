@@ -1,6 +1,10 @@
-## KMP
-```cpp
-int next[1000];
+// 还是KMP统计出现次数
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<ctype.h>
+char mainStr[1100000], patStr[11000];
+int next[11000];
 void BuildNext(char ts[])
 {
     next[0] = -1;
@@ -15,16 +19,15 @@ void BuildNext(char ts[])
 int KmpMatch(char ms[], char ts[])
 {
     int tlen = strlen(ts);
+    int ans = 0;
     for(int i = 0, j = 0; ms[i];)
     {
         if(j == -1 || ms[i] == ts[j])
         {
             if(j == tlen - 1)
             {
-                // 确认一次完整匹配，此处可支持不同题目要求的记录匹配位置、
-                // 统计匹配次数 或返回第一次匹配位置等操作。
-                // 这里返回匹配位置。其它不结束循环的工作则 j = next[j];
-                return i - tlen + 1;    // 从 i 往前数 tlen-1 个
+                ans ++;
+                j = next[j];
             }
             else
                 i ++, j ++;
@@ -32,6 +35,16 @@ int KmpMatch(char ms[], char ts[])
         else
             j = next[j];
     }
-    return -1;
+    return ans;
 }
-```
+int main()
+{
+    int t;
+    for(scanf("%d", &t); t --; )
+    {
+        scanf("%s%s", patStr, mainStr);
+        BuildNext(patStr);
+        printf("%d\n", KmpMatch(mainStr, patStr));
+    }
+    return 0;
+}
