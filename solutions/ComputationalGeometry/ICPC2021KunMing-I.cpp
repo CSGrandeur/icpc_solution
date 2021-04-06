@@ -1,4 +1,4 @@
-// difficulty: 3
+// difficulty: 2
 // Mr. Main and Windmills
 // 几何水题，求直线与线段交点排个序
 // 此题坑点在精度，如果计算方式不当可能损失精度而WA

@@ -1,4 +1,4 @@
-// difficulty: 3
+// difficulty: 2
 // Simone and Graph Coloring
 // 最长下降子序列。每个数字自身所处的最长下降子序列的位置可以构造为其颜色编号。
 // 10^6数量级需要 nlogn 算法，刚好可以DP时构造答案。
