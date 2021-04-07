@@ -58,7 +58,7 @@ void Update(int v, int left, int right, int &now, int last)
 LL Query(int st, int ed, int left, int right, int tl, int tr)
 {
     // 求编号区间[l,r)的数值在[st, ed)范围的数的和
-    // 通过传参，tl对应1~l-1区间的版本，tr对应1~r区间的版本，在树上求前缀差
+    // 通过传参，tl对应l-1前缀的版本，tr对应r前缀的版本，在树上求前缀差
     if(st <= left && ed >= right) return val[tr] - val[tl];
     int mid = left + right >> 1;
     LL res = 0;
