@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-char buf[110][110];1
+char buf[110][110];
 int p[11111];
 bool vis[11111];
 int fa(int now)
