@@ -1,6 +1,7 @@
 # 计算几何
 
 ## SuperPoint，点线的基本定义
+
 ```cpp
 #include<stdio.h>
 #include<string.h>
@@ -15,7 +16,9 @@ inline double min(double a, double b) {return a < b ? a : b;}
 inline double max(double a, double b) {return a > b ? a : b;}
 inline double Sqr(double x) {return x * x;}
 ```
+
 ### 点的定义
+
 ```cpp
 struct Point
 {
@@ -62,6 +65,7 @@ struct Point
     inline bool InLine(const Point &b, const Point &c)const //三点共线
     {return !dcmp(cross(b, c));}
 
+    /* 注意：如果已知点与线段端点共线，只是判断在两端点范围内，最好去掉 `InLine(b, c) &&`以提高精度*/
     inline bool OnSeg(const Point &b, const Point &c)const //点在线段上，包括端点
     {return InLine(b, c) && (*this - c).dot(*this - b) < eps;}
 
@@ -82,12 +86,16 @@ struct Point
     }
 };
 ```
+
 ### 判断两直线平行
+
 ```cpp
 bool Parallel(Point a, Point b, Point c, Point d)
 {return !dcmp(a.cross(b, a + d - c));} 
 ```
+
 ### 判断直线与线段相交（包含端点）
+
 ```cpp
 // a b 为直线， c d 为线段。行末改为 `< -eps;` 则不包含端点
 bool LineInterSeg(const Point a, Point b, Point c, Point d)
@@ -95,7 +103,9 @@ bool LineInterSeg(const Point a, Point b, Point c, Point d)
     return !Parallel(a, b, c, d) &&  a.cross(b, c) * a.cross(b, d) < eps;
 }
 ```
+
 ### 直线交点
+
 ```cpp
 Point LineCross(Point a, Point b, Point c, Point d)
 {
@@ -103,7 +113,9 @@ Point LineCross(Point a, Point b, Point c, Point d)
     return Point((c.x * v + d.x * u) / (u + v), (c.y * v + d.y * u) / (u + v));
 }
 ```
+
 ### 点到线段距离
+
 ```cpp
 double Point::ToSeg(const Point &b, const Point &c)const
 {
@@ -113,7 +125,9 @@ double Point::ToSeg(const Point &b, const Point &c)const
     return Dis(LineCross(*this, t, b, c));
 }
 ```
+
 ### 线段交点，包括端点
+
 ```cpp
 bool SegCross(Point a,  Point b,  Point c,  Point d, Point &p) 
 {
@@ -126,8 +140,11 @@ bool SegCross(Point a,  Point b,  Point c,  Point d, Point &p)
 }
  
 ```
+
 ## 经典应用
+
 ### 半平面交
+
 ```cpp
 struct Line
 // 定义半平面
@@ -204,7 +221,9 @@ bool HalfPanelCross(Line l[], int n, Point cp[], int &m)
 }
 
 ```
+
 ### 各边平移求新核
+
 ```cpp
 Point ParallelMove(Point a, Point b, Point ret, double L) //将ret沿a->b方向左侧垂直平移L
 {
@@ -221,7 +240,9 @@ void MakeNewPanels(Point p[], int n, Line l[], double L) //生成多边形的边
 }
 
 ```
-###  Graham凸包
+
+### Graham凸包
+
 ```cpp
 int Graham(Point p[], int n, Point res[], int &top) //求凸包,结果为逆时针顺序
 {
@@ -248,7 +269,9 @@ int Graham(Point p[], int n, Point res[], int &top) //求凸包,结果为逆时�
 }
 
 ```
+
 ### 简单多边形面积
+
 ```cpp
 double PolygonArea(Point p[], int n)
 {
@@ -261,7 +284,9 @@ double PolygonArea(Point p[], int n)
 }
 
 ```
+
 ### 凸多边形最远点对
+
 ```cpp
 // 需要求点的时候把max换成判断更新。
 double CPFMP(Point p[], int n) //ConvexPolygonFarMostPoints
@@ -280,7 +305,9 @@ double CPFMP(Point p[], int n) //ConvexPolygonFarMostPoints
 
  
 ```
+
 ### 两不相交凸多边形最近点对
+
 ```cpp
 // 需要求点的时候把min换成判断更新。
 // 计算方法：double ans = min(CPMDTCP(p, n, q, m), CPMDTCP(q, m, p, n)));
@@ -353,7 +380,9 @@ double CPMDTCP(Point p[], int n, Point q[], int m) //ConvexPolygonMinDistanceToC
 */
 
 ```
+
 ### 凸多边形最大面积三角形
+
 ```cpp
 double CPFMP(Point p[], int n) //ConvexPolygonFarMostPoints
 {
@@ -371,7 +400,9 @@ double CPFMP(Point p[], int n) //ConvexPolygonFarMostPoints
     return ans * 0.5;
 }
 ```
+
 ### 给定半径圆和散点集求圆覆盖最多点的个数
+
 ```cpp
 /*
 这里添加角度区间模版
@@ -402,7 +433,9 @@ int CircleCoverPoing(Point p[], int n, double R)
 }
 
 ```
+
 ### 多边形有向边顺逆时针判断及反转
+
 ```cpp
 // 支持简单多边形
 void MakeCounterClock(Point p[], int n) //顺时针则反转多边形的有向边 
@@ -416,7 +449,9 @@ void MakeCounterClock(Point p[], int n) //顺时针则反转多边形的有向�
         tmp = p[i], p[i] = p[n - i - 1], p[n - i - 1] = tmp;
 }
 ```
+
 ### 判断点在简单多边形内
+
 ```cpp
 /*****lrj版（推荐用此版本）*****/ 
 bool InSimplePolygon(Point u, Point p[], int n)
@@ -469,7 +504,9 @@ bool InSimplePolygon(Point u, Point p[], int n/*double neg_inf*/)
     return AngCounterClock(angvu, angvp1) < AngCounterClock(angvp2, angvp1) - eps;
 }
 ```
+
 ### 简单多边形、凸多边形面积并
+
 ```cpp
 // 不需要正规的三角剖分，用求多边形面积的思想，从一点出发连接多边形的边得到很多三
 // 角形，三角形有向边方向决定有向面积有正有负，相加得到多边形面积的正值或负值。
@@ -523,7 +560,9 @@ double SPIA(Point a[], Point b[], int na, int nb)
     // res是面积交，CPIA可同理求交
 }
 ```
+
 ### 简单多边形与圆面积交
+
 ```cpp
 // 要用到Sqr(double x)，同时重载了Sqr(Point p)，两个都要。
 inline double Sqr(const Point &p) {return p.dot(p);}
@@ -573,7 +612,9 @@ double SPICA(Point p[], int n, Point r, double R)
 }
 
 ```
+
 ### 平面最近点对距离
+
 ```cpp
 Point p[maxn], lp[maxn];
 double ClosestPoints(Point p[], int l, int r) //[l, r)
@@ -613,7 +654,9 @@ double ClosestPoints(Point p[], int l, int r) //[l, r)
 }
 
 ```
+
 ### 最小圆覆盖
+
 ```cpp
 // 覆盖散点集的半径最小的圆
 Point CC(Point &a, Point &b, Point &c)    //外接圆
@@ -659,7 +702,9 @@ double SC(Point p[], int n, Point &r) //SmallestCircle
     return R;
 }
 ```
+
 ### 非随机化版
+
 ```cpp
 double SC(Point p[], int n, Point &r) //SmallestCircle
 {
@@ -687,7 +732,9 @@ double SC(Point p[], int n, Point &r) //SmallestCircle
     return R;
 }
 ```
-### 求一系列不相切不相交的圆最深嵌套 
+
+### 求一系列不相切不相交的圆最深嵌套
+
 ```cpp
 int LineNow, ltp, n, cnt[maxn];
 struct Cir //圆
@@ -760,7 +807,9 @@ int MakeAns()
     return ans;
 }
 ```
+
 ### 角度区间模版
+
 ```cpp
 // atan2  (-pi,pi]转区间覆盖处理
 int ctp;
@@ -801,12 +850,16 @@ int SumCov(Cov cover[], int ctp)
 }
 
 ```
+
 ### 判断圆i在圆j中（包括内切）
+
 ```cpp
 inline bool IinJ(int i, int j, double ijdis)
 {return dcmp(ra[i].r + ijdis - ra[j].r) <= 0;}
 ```
+
 ### 判断圆i与圆j相交（包括外切）
+
 ```cpp
 inline bool IcutJ(int i, int j, double ijdis)
 {return dcmp(ijdis - ra[i].r + ra[j].r) <= 0;}
@@ -828,7 +881,9 @@ void CalCirCutCir(int i, int j)
     //以第一象限左右为例推出计算切点切线的方法，可以推广到其他方位和象限。
 }
 ```
+
 ### 圆外点到圆切线
+
 ```cpp
 void TLTP(Point p, Point r, double R, Point &p1, Point &p2)
 // p->p1 p->p2为切线向量，但非切点。p1->p2逆时针，绕点旋转法
@@ -852,7 +907,9 @@ void TLTP(Point p, Point r, double R, Point &p1, Point &p2)
 }
 */
 ```
+
 ### 两圆面积交
+
 ```cpp
 // 其实就是余弦定理
 double CircleInsectArea(Point a, double Ra, Point b, double Rb)
@@ -867,12 +924,16 @@ double CircleInsectArea(Point a, double Ra, Point b, double Rb)
 }
 
 ```
+
 ### 皮克定理
+
 ```cpp
 // 给定顶点座标均是整点（或正方形格点）的简单多边形，皮克定理说明了其面积
 // area和内部格点数目 I 、边上格点数目 cnt 的关系：area = I + cnt/2 - 1 。
 ```
+
 ### 模拟退火样例
+
 ```cpp
 // 范围内距离点集最近距离最远点
 // 模拟退火基本都是这样的格式，清楚原理之后可自由发挥
@@ -911,8 +972,11 @@ void SA()
 }
  
 ```
+
 ## 三维几何
+
 ### 定义三维点
+
 ```cpp
 struct Point3
 {
@@ -992,7 +1056,9 @@ bool operator!=(const Point3 &p)const
 };
 
 ```
+
 ### 面面交线
+
 ```cpp
 bool InterLine(Plane3 u, Plane3 v, Line &l)
 {
@@ -1004,7 +1070,9 @@ bool InterLine(Plane3 u, Plane3 v, Line &l)
     return true;
 }
 ```
+
 ### 三维凸包
+
 ```cpp
 // 需要多个凸包时，可以把三维凸包相关变量函数封装为类，vector代替数组。
 int be[maxn][maxn], m;
@@ -1068,7 +1136,9 @@ void Cal3DConvex(int n) //三维凸包，f[i].del表示是否是已删除面
     }
 }
 ```
+
 ### 计算三维凸包重心
+
 ```cpp
 Point3 CalCenter(int n)  
 {
@@ -1087,7 +1157,9 @@ Point3 CalCenter(int n)
     return center;
 }
 ```
+
 ### 三维坐标平移、旋转、倍增变换
+
 ```cpp
 // Matrix结构体中进行每种类型操作的成员函数都返回一个Matrix值，并不改变自身。
 // x、y、z分别为Mt[0][0]、Mt[0][1]、Mt[0][2]，运算前Mt[0][3]置1. 
@@ -1164,7 +1236,9 @@ struct Matrix
     }
 };
 ```
+
 ### 分数表示的点线距离
+
 ```cpp
 struct Point3     //三维坐标点 
 {
