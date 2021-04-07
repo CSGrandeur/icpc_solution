@@ -1,6 +1,7 @@
 # 字符串
 
 ## KMP
+
 ```cpp
 int next[1000];
 void BuildNext(char ts[])

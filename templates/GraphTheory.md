@@ -1,9 +1,8 @@
 # 图论
 
-## 最小生成树
-### Prim
+## 前向星建图
+
 ```cpp
-typedef std::pair<int, int> pii;
 const int MAXN = 510;
 const int MAXM = 100010;
 int first[MAXN], nex[MAXM], u[MAXM], v[MAXM], w[MAXM];
@@ -16,11 +15,20 @@ void AddEdge(int u_, int v_, int w_)
     nex[tp] = first[u_];
     first[u_] = tp ++;
 }
+
 void DbEdge(int u_, int v_, int w_)
 {
     AddEdge(u_, v_, w_);
     AddEdge(v_, u_, w_);
 }
+```
+
+## 最小生成树
+
+### Prim
+
+```cpp
+typedef std::pair<int, int> pii;
 int Prim()
 {
     int dis[MAXN];
@@ -56,7 +64,9 @@ int Prim()
     return res;
 }
 ```
+
 ### Kruskal
+
 ```cpp
 int p[MAXN];
 int wOrder[MAXM];
@@ -72,14 +82,14 @@ int fa(int i)
 {return p[i] == i ? i : p[i] = fa(p[i]);}
 int Kruskal()
 {
-	int res = 0, edgeNum = 0;
-	for(int i = 1; i <= n; i ++)
-		p[i] = i;
+    int res = 0, edgeNum = 0;
+    for(int i = 1; i <= n; i ++)
+        p[i] = i;
     OrderW();
-	for(int i = 0; i < tp; i ++)
-	{
-		int len = w[i];
-		if(fa(u[i]) != fa(v[i]))
+    for(int i = 0; i < tp; i ++)
+    {
+        int len = w[i];
+        if(fa(u[i]) != fa(v[i]))
         {
             res += len;
             p[fa(u[i])] = fa(v[i]);
@@ -87,7 +97,7 @@ int Kruskal()
             if(edgeNum == n - 1)
                 break;
         }
-	}
-	return edgeNum == n - 1 ? res : 0x3f3f3f3f;
+    }
+    return edgeNum == n - 1 ? res : 0x3f3f3f3f;
 }
 ```
