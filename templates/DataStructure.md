@@ -28,6 +28,62 @@ int Search(int x)
 }
 ```
 
+## 线段树
+
+### 四叉树
+
+```cpp
+// 以求区域和为例
+const int maxn = 1e5 + 10;
+const int maxm = maxn << 4;
+const int minco = -1e4 - 210;
+const int maxco = 1e4 + 210;
+int dr[4][maxm], val[maxm];
+int tp;  // 模拟内存分配指针，初始化为 1 （0结点为根）
+void InitNode(int qd, int now)
+{
+    if(dr[qd][now] == -1)
+    {
+        val[tp] = 0;
+        dr[qd][now] = tp ++;
+    }
+}
+void Update(int now, int v, int left, int right, int up, int down, int x, int y)
+{
+    // Update(0, v, minco, maxco, minco, maxco, x, y);
+    // 格点x、y放入数值 v，约定不重复向同一位置放
+    if(left == right || up == down)
+        return;
+    val[now] += v;
+    if(left == right - 1 && up == down - 1)
+        return;
+    int lrmid = left + right >> 1;
+    int udmid = up + down >> 1;
+    if(x < lrmid && y < udmid) InitNode(0, now), Update(dr[0][now], v, left, lrmid, up, udmid, x, y);
+    if(x < lrmid && y >= udmid) InitNode(1, now), Update(dr[1][now], v, left, lrmid, udmid, down, x, y);
+    if(x >= lrmid && y < udmid) InitNode(2, now), Update(dr[2][now], v, lrmid, right, up, udmid, x, y);
+    if(x >= lrmid && y >= udmid) InitNode(3, now), Update(dr[3][now], v, lrmid, right, udmid, down, x, y);
+}
+int Query(int now, int left, int right, int up, int down, int sl, int sr, int su, int sd)
+{
+    // Query(0, minco, maxco, minco, maxco, sl, sr, su, sd);
+    // x∈[sl, sr)，y∈[su, sd) 的矩形范围个点数之和
+    if(now == -1 || left == right || up == down)
+        return 0;
+    if(sl <= left && sr >= right && su <= up && sd >= down)
+        return val[now];
+    int lrmid = left + right >> 1;
+    int udmid = up + down >> 1;
+    int res = 0;
+    if(sl < lrmid && su < udmid) res += Query(dr[0][now], left, lrmid, up, udmid, sl, sr, su, sd);
+    if(sl < lrmid && sd >= udmid) res += Query(dr[1][now], left, lrmid, udmid, down, sl, sr, su, sd);
+    if(sr >= lrmid && su < udmid) res += Query(dr[2][now], lrmid, right, up, udmid, sl, sr, su, sd);
+    if(sr >= lrmid && sd >= udmid) res += Query(dr[3][now], lrmid, right, udmid, down, sl, sr, su, sd);
+    return res;
+}
+```
+
+
 ## 可持久化线段树
 
 ### 常规定义
