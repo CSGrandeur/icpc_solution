@@ -97,6 +97,8 @@ int main()
             for(int j = 0; sg[i][j]; j ++)
                 sgT[j][i] = sg[i][j];
         }
+        for(int i = 0; i < c; i ++)
+            sgT[i][r] = 0;
         BuildNext(nex, true);
         ansr = c - nex[c];
         BuildNext(nex, false);
