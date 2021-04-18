@@ -1,5 +1,36 @@
 # 数据结构
 
+## 二叉树
+
+### 哈夫曼编码
+
+给定字符串求哈夫曼编码长度
+
+```cpp
+const int MAXCODE = 128;
+int cnt[MAXCODE];
+int GetHuffmanLength(char st[])
+{
+    int length = 0;
+    priority_queue<int, vector<int>, greater<int> > q;
+    memset(cnt, 0, sizeof(cnt));
+    for(int i = 0; st[i]; i ++)
+        cnt[st[i]] ++;
+    for(int i = 0; i < MAXCODE; i ++)
+        if(cnt[i]) q.push(cnt[i]);
+    for(length = 0; q.size() > 1; )
+    {
+        int left = q.top(); q.pop();
+        int right = q.top(); q.pop();
+        length += left + right;
+        q.push(left + right);
+    }
+    if(length == 0 && !q.empty())
+        length = q.top();
+    return length;
+}
+```
+
 ## 树状数组
 
 ```cpp
