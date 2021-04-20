@@ -1,3 +1,4 @@
+// difficulty: 1
 // 栈模拟
 #include<stdio.h>
 #include<string.h>

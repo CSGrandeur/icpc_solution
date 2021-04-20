@@ -4,7 +4,7 @@
 
 ```cpp
 int nex[maxn];
-void BuildNext(char ps[])
+void BuildNext(char ps[], int nex[])
 {
     nex[0] = -1;
     for(int i = 0, j = -1; ps[i]; )

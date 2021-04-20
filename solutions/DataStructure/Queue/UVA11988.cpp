@@ -1,3 +1,4 @@
+// difficulty: 1
 // Broken Keyboard (a.k.a. Beiju Text) 
 // 字符串处理，可以用链表
 
