@@ -1,0 +1,62 @@
+// difficulty: 3
+// Sort
+// 在赫夫曼专题下这题很容易想到主要解法，但是突然出现在比赛里时，是否能想到这是个`K`叉赫夫曼树呢？
+// 关于`K`，是比较典型的二分答案问题。
+// 但是到这里，这道题还是不放过我们，有两点要注意：
+// 1. 当(N-1)%(mid-1)不整除时，第一次合并不能合并 mid 个，而是(N-1)%(mid-1)+1个
+// 2. 需要常数优化，把数组先排序，数组遍历与优先队列结合合并。如果按常规赫夫曼建树一开始把所有结点都放入队列，则会超时。
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<queue>
+#include<vector>
+#include<algorithm>
+using namespace std;
+const int maxn = 110000;
+int t, N, T;
+int a[maxn];
+bool TryOk(int mid)
+{
+    priority_queue<int, vector<int>, greater<int> > q;
+    int ret = 0;
+    int j = 0;
+    while(true)
+    {
+        int cnt = 0;
+        int limit = mid;
+        int total = q.size() + N - j;
+        if(total == 1)
+            break;
+        if((total - 1) % (mid - 1))
+            limit = (total - 1) % (mid - 1) + 1;
+        for(int i = 0; i < limit && (!q.empty() || j < N); )
+        {
+            for(; !q.empty() && (q.top() < a[j] || j == N) && i < limit; i ++, q.pop())
+                cnt += q.top();
+            if(j < N && i < limit)
+                cnt += a[j ++], i ++;
+        }
+        ret += cnt;
+        q.push(cnt);
+    }
+    return ret <= T;
+}
+int main()
+{
+    for(scanf("%d", &t); t --; )
+    {
+        scanf("%d%d", &N, &T);
+        for(int i = 0; i < N; i ++)
+            scanf("%d", &a[i]);
+        sort(a, a + N);
+        int left = 2, right = N + 1;
+        while(left < right)
+        {
+            int mid = left + right >> 1;
+            if(TryOk(mid)) right = mid;
+            else left = mid + 1;
+        }
+        printf("%d\n", right);
+    }
+    return 0;
+}
