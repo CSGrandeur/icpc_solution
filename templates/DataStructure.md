@@ -31,6 +31,26 @@ int GetHuffmanLength(char st[])
 }
 ```
 
+给定权值序列求赫夫曼树带权路径和
+
+```cpp
+LL GetHuffmanSum(int w[], int wLen)
+{
+    LL length = 0;
+    priority_queue<LL, vector<LL>, greater<LL> > q;
+    for(int i = 0; i < wLen; i ++)
+        q.push(w[i]);
+    for(length = 0; q.size() > 1; )
+    {
+        int left = q.top(); q.pop();
+        int right = q.top(); q.pop();
+        length += left + right;
+        q.push(left + right);
+    }
+    return length;
+}
+```
+
 ## 树状数组
 
 ```cpp

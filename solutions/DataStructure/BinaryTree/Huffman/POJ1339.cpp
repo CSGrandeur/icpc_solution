@@ -1,0 +1,38 @@
+// difficulty: 2
+// poker card game
+// 赫夫曼树带权路径和，说来有趣，一个赫夫曼树出题能玩这么多花样
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<queue>
+using namespace std;
+typedef long long LL;
+const int maxn = 1e5 + 10;
+int t, m, w[maxn];
+
+LL GetHuffmanSum(int w[], int wLen)
+{
+    LL length = 0;
+    priority_queue<LL, vector<LL>, greater<LL> > q;
+    for(int i = 0; i < wLen; i ++)
+        q.push(w[i]);
+    for(length = 0; q.size() > 1; )
+    {
+        int left = q.top(); q.pop();
+        int right = q.top(); q.pop();
+        length += left + right;
+        q.push(left + right);
+    }
+    return length;
+}
+int main()
+{
+    for(scanf("%d", &t); t --; )
+    {
+        scanf("%d", &m);
+        for(int i = 0; i < m; i ++)
+            scanf("%d", &w[i]);
+        printf("%lld\n", GetHuffmanSum(w, m));
+    }
+    return 0;
+}
