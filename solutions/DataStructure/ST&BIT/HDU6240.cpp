@@ -1,4 +1,5 @@
 // difficulty: 4
+// Server
 // 01分数规划：设Sum(ai) / Sum(bi)  的结果为 x，则 F(x) = Sum(ai) - x * Sum(bi) == 0
 // 二分枚举 x， F(x) < 0 则 right = mid， 否则 left = mid
 // 二分时，给定一个 x（mid），所有 ai - x * bi <= 0 的线段都用上
