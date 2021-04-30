@@ -2,6 +2,121 @@
 
 ## 二叉树
 
+### 二叉树非递归遍历
+
+层次遍历
+
+```cpp
+void LevelOrder()
+{
+    queue<int> q;
+    q.push(0);
+    while(!q.empty())
+    {
+        int now = q.front();
+        q.pop();
+        if(tr[now].v == '0')
+            continue;
+        printf("%c", tr[now].v);
+        if(tr[now].l != -1) q.push(tr[now].l);
+        if(tr[now].r != -1) q.push(tr[now].r);
+    }
+    printf("\n");
+}
+```
+
+先序遍历
+
+```cpp
+void PreOrderNonRecursive()
+{
+    stack<int> stNode;
+    int now = 0;
+    if(tr[now].v == '#') return;  // '#' 表示空子树
+    while(!stNode.empty() || tr[now].v != '#')
+    {
+        if(tr[now].v != '#')
+        {
+            printf("%c", tr[now].v);
+            stNode.push(now);
+            now = tr[now].l;
+        }
+        else if(!stNode.empty())
+        {
+            now = stNode.top();
+            stNode.pop();
+            now = tr[now].r;
+        }
+    }
+    printf("\n");
+}
+```
+
+中序遍历
+
+```cpp
+void InOrderNonRecursive()
+{
+    stack<int> stNode;
+    int now = 0;
+    if(tr[now].v == '#') return;
+    while(!stNode.empty() || tr[now].v != '#')
+    {
+        if(tr[now].v != '#')
+        {
+            stNode.push(now);
+            now = tr[now].l;
+        }
+        else if(!stNode.empty())
+        {
+            now = stNode.top();
+            stNode.pop();
+            printf("%c", tr[now].v);
+            now = tr[now].r;
+        }
+    }
+    printf("\n");
+}
+```
+
+后序遍历
+
+```cpp
+void PostOrderNonRecursive()
+{
+    stack<int> stNode, stStatus;
+    int now = 0;
+    if(tr[now].v == '#') return;
+    while (!stNode.empty() || now != -1 && tr[now].v != '#')
+    {
+        if(now == -1 || tr[now].v == '#')
+        {  // 遇空指针（空树）出栈
+            now = stNode.top();
+            if(stStatus.top() == 0)  
+            {  // 0 标记要往右去
+                now = tr[now].r;
+                stStatus.pop();
+                stStatus.push(1);
+            }
+            else
+            {  // 1 标记要返回（输出并出栈）
+                printf("%c", tr[now].v);
+                stNode.pop();
+                stStatus.pop();
+                now = -1;
+            }
+        }
+        else
+        {  // 非空则入栈，往左去
+            stNode.push(now);
+            stStatus.push(0);
+            now = tr[now].l;
+        }
+    } 
+    printf("\n");
+}
+```
+
 ### 哈夫曼编码
 
 给定字符串求哈夫曼编码长度
