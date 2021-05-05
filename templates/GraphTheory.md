@@ -3,9 +3,9 @@
 ## 前向星建图
 
 ```cpp
-const int MAXN = 510;
-const int MAXM = 100010;
-int fst[MAXN], nex[MAXM], u[MAXM], v[MAXM], w[MAXM];
+const int maxn = 510;
+const int maxm = 100010;
+int fst[maxn], nex[maxm], u[maxm], v[maxm], w[maxm];
 int tp, n;  // tp边数，n节点数
 void AddEdge(int u_, int v_, int w_)
 {
@@ -31,8 +31,8 @@ void DbEdge(int u_, int v_, int w_)
 typedef std::pair<int, int> pii;
 int Prim()
 {
-    int dis[MAXN];
-    bool vis[MAXN];
+    int dis[maxn];
+    bool vis[maxn];
     std::priority_queue<pii, std::vector<pii>, std::greater<pii> > q;
     memset(vis, 0, sizeof(vis));
     memset(dis, 0x3f, sizeof(dis));
@@ -68,8 +68,8 @@ int Prim()
 ### Kruskal
 
 ```cpp
-int p[MAXN];
-int wOrder[MAXM];
+int p[maxn];
+int wOrder[maxm];
 inline bool comp(const int &a, const int &b)
 {return w[a] < w[b];}
 void OrderW()
@@ -99,5 +99,20 @@ int Kruskal()
         }
     }
     return edgeNum == n - 1 ? res : 0x3f3f3f3f;
+}
+```
+
+## 最短路
+
+### Floyd-Warshall
+
+```cpp
+int g[maxn][maxn];
+void Floyd(int n)
+{// 结点范围[1, n]
+    for(int k = 1; k <= n; k ++)
+        for(int i = 1; i <= n; i ++)
+            for(int j = 1; j <= n; j ++)
+                g[i][j] = min(g[i][k] + g[k][j], g[i][j]);
 }
 ```
