@@ -5,15 +5,15 @@
 ```cpp
 const int MAXN = 510;
 const int MAXM = 100010;
-int first[MAXN], nex[MAXM], u[MAXM], v[MAXM], w[MAXM];
+int fst[MAXN], nex[MAXM], u[MAXM], v[MAXM], w[MAXM];
 int tp, n;  // tp边数，n节点数
 void AddEdge(int u_, int v_, int w_)
 {
     u[tp] = u_;
     v[tp] = v_;
     w[tp] = w_;
-    nex[tp] = first[u_];
-    first[u_] = tp ++;
+    nex[tp] = fst[u_];
+    fst[u_] = tp ++;
 }
 
 void DbEdge(int u_, int v_, int w_)
@@ -52,7 +52,7 @@ int Prim()
         nodeCnt ++;
         if(nodeCnt == n)
             break;
-        for(int i = first[now]; i != -1; i = nex[i])
+        for(int i = fst[now]; i != -1; i = nex[i])
         {
             if(w[i] < dis[v[i]])
             {
