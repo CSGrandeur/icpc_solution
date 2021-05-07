@@ -190,7 +190,7 @@ struct Node
 };
 
 Node tr[maxn];
-int root, tp;
+int root, tp; // root 为可变的根，tp全局内存指针，都初始化为-1
 
 inline int UpdateHeight(int now)
 {
