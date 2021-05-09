@@ -100,13 +100,14 @@ void Delete(int &now, int key)
             for(nd = tr[now].left; tr[nd].right != -1; nd = tr[nd].right);
             tr[now].key = tr[nd].key; tr[now].data = tr[nd].data;
             Delete(tr[now].left, tr[nd].key);
-            if(HeightDiff(now) == 2)
-                now = HeightDiff(tr[now].left) == 1 ? LL(now) : LR(now);
-            else if(HeightDiff(now) == -2)
-                now = HeightDiff(tr[now].right) == -1 ? RR(now) : RL(now);
-            UpdateHeight(now);
         }
     }
+    if(now == -1) return;
+    UpdateHeight(now);
+    if(HeightDiff(now) == 2)
+        now = HeightDiff(tr[now].left) >= 0 ? LL(now) : LR(now);
+    else if(HeightDiff(now) == -2)
+        now = HeightDiff(tr[now].right) <= 0 ? RR(now) : RL(now);
 }
 
 int GetFirst(int now)
