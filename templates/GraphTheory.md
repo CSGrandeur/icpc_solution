@@ -6,7 +6,7 @@
 const int maxn = 510;
 const int maxm = 100010;
 int fst[maxn], nex[maxm], u[maxm], v[maxm], w[maxm];
-int tp, n;  // tp边数，n节点数
+int tp, n, m;  // tp边数，n结点数, m边数
 void AddEdge(int u_, int v_, int w_)
 {
     u[tp] = u_;
@@ -114,5 +114,65 @@ void Floyd(int n)
         for(int i = 1; i <= n; i ++)
             for(int j = 1; j <= n; j ++)
                 g[i][j] = min(g[i][k] + g[k][j], g[i][j]);
+}
+```
+### Dijkstra
+
+```cpp
+#include<queue>
+#include<algorithm>
+using namespace std;
+typedef pair<int, int> pii;
+const int INF = 0x3f3f3f3f;
+int dis[maxn];
+int Dijkstra(int start, int end)
+{
+    memset(dis, 0x3f, sizeof(dis));
+    dis[start] = 0;
+    priority_queue<pii, vector<pii>, greater<pii> > q;
+    q.push(pii(0, start));
+    while(!q.empty())
+    {
+        pii now = q.top();
+        q.pop();
+        if(now.first != dis[now.second]) continue;
+        if(now.second == end) return now.first;
+        for(int i = fst[now.second]; i != -1; i = nex[i])
+        {
+            if(dis[now.second] + w[i] < dis[v[i]])
+            {
+                dis[v[i]] = dis[now.second] + w[i];
+                q.push(pii(dis[v[i]], v[i]));
+            }
+        }
+    }
+    return INF;
+}
+```
+
+## 拓扑排序
+
+邻接矩阵，基于入度
+
+```cpp
+int g[maxn][maxn];
+int ind[maxn];
+int res[maxn], rtp;
+void TopoSort()
+{
+    int i, j, k;
+    rtp = 0;
+    for(i = 0; i < n; i ++) ind[i] = 0;
+    for(i = 0; i < n; i ++) 
+        for(j = 0; j < n; j ++)
+            ind[j] += g[i][j];
+    for(i = 0; i < n; i ++)
+    {
+        for(j = 0; j < n && ind[j]; j ++);
+        res[rtp ++] = j;
+        ind[j] = -1;
+        for(k = 0; k < n; k ++)
+            ind[k] -= g[j][k];
+    }
 }
 ```
