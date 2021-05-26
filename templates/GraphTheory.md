@@ -29,14 +29,14 @@ void DbEdge(int u_, int v_, int w_)
 
 ```cpp
 typedef std::pair<int, int> pii;
+int key[maxn];
+bool vis[maxn];
 int Prim()
 {
-    int dis[maxn];
-    bool vis[maxn];
     std::priority_queue<pii, std::vector<pii>, std::greater<pii> > q;
     memset(vis, 0, sizeof(vis));
-    memset(dis, 0x3f, sizeof(dis));
-    dis[v[0]] = 0;
+    memset(key, 0x3f, sizeof(key));
+    key[v[0]] = 0;
     int res = 0;
     int nodeCnt = 0;
     q.push(pii(0, 0));
@@ -47,16 +47,16 @@ int Prim()
         q.pop();
         if(vis[now]) 
             continue;
-        res += dis[now];
+        res += key[now];
         vis[now] = true;
         nodeCnt ++;
         if(nodeCnt == n)
             break;
         for(int i = fst[now]; i != -1; i = nex[i])
         {
-            if(w[i] < dis[v[i]])
+            if(w[i] < key[v[i]])
             {
-                dis[v[i]] = w[i];
+                key[v[i]] = w[i];
                 q.push(pii(w[i], i));
             }
         }
