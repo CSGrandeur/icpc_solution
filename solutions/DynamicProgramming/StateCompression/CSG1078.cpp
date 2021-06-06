@@ -10,8 +10,8 @@
 // x 第 i 位取 0 时， dp[i][j] = dp[i - 1][j];
 // x 第 i 位取 1 时， dp[i][j ^ mask] = dp[i - 1][j] * 3^(2^(i+1))
 // 特别地，这里 “3^(2^(i+1))” 是因为x拆分处理，乘3的幂也拆分处理。
-// count(x)*3^x 则被拆分为：
-// (count(x0*2^0) + count(x1*2^1) ... ) * 3^(x0*2^0 + x1*2^1 +  ...)
+// count(x)*3^x 被拆分为：
+// count(x) * 3^(x0*2^0 + x1*2^1 +  ...)
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
