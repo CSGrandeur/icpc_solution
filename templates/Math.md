@@ -1,6 +1,6 @@
 # 数学
 
-## 筛素数
+## 筛质数
 
 ### 埃氏筛法
 
@@ -45,6 +45,92 @@ void SetPrime()
             if(i % prime[j] == 0) break;
         }
     }
+}
+```
+
+## 快速幂取模
+
+```cpp
+int PowMod(int a, int n, int mod)
+{
+    int ret = 1;
+    while(n)
+    {
+        if(n & 1) ret = 1LL * ret * a % mod;
+        a = 1LL * a * a % mod;
+        n >>= 1;
+    }
+    return ret;
+}
+```
+
+## 乘法逆元
+
+### 方法1：费马小定理
+
+`GCD(a, b)==1`，则`a^(b-1) % b == 1`，故 `a^(b-2)`为`a`模`b`的逆元，调用快速幂取模。
+
+模数 `b` 为质数时可用。
+
+```cpp
+int FermatInv(int a, int b)
+{
+    return PowMod(a, b - 2, b);
+}
+```
+
+### 方法2：扩展欧几里得
+
+求逆元模数b通常很大，用long long保险，可行解存在引用参数x,y中，返回值为GCD(a,b)的结果。
+
+最常用、安全的求逆元方式。
+
+```cpp
+typedef long long LL;  
+LL ExGCD(LL a, LL b, LL &x, LL &y)
+{ 
+    //
+    if(b == 0)
+    {
+        x = 1, y = 0;
+        return a;
+    }
+    LL d = ExGCD(b, a % b, x, y), t = x;
+    x = y, y = t - a / b * x;
+    return d; 
+}
+```
+
+```cpp
+int ExGcdInv(int a, int mod)
+{
+    int x, y;
+    ExGCD(a, b, x, y);
+    return x;
+}
+```
+
+### 方法3：递归求逆元
+
+`mod` 必须为质数。
+
+```cpp
+LL Inv(LL a, LL mod)
+{
+    if(a == 1) return 1;
+    return (mod - mod / a) * Inv(mod % i) % mod;
+}
+```
+
+### 逆元打表
+
+```cpp
+int invList[mod + 10];
+void GetInv(int mod)
+{
+    invList[1] = 1;
+    for(int i = 2; i < mod; i ++)
+        invList[i] = 1LL * (mod - mod / i) * invList[mod % i] % mod;
 }
 ```
 
@@ -192,6 +278,42 @@ int GaussXor(int eqn, int xn)
     for(int i = k; i < eqn; i ++) if(a[i][xn]) return -1;
     if(k < xn) return xn - k;
     for(int i = xn - 1; i >= 0; i --)
+        x[i] = a[i][xn];
+    return 0;
+}
+```
+
+### 结果取模方程组
+
+取模则可利用逆元处理除法，不用担心整除问题，方便地消解为单位矩阵。
+
+下述代码中`Inv(a, mod)`为取逆元。
+
+```cpp
+void AddMod(int &a, int b){(a += b) %= mod;}
+int GaussElMod(int eqn, int xn, int mod)
+{
+    int k, nzRow, curCol = 0, frnum = 0;
+    for(k = 0; k < eqn && curCol < xn; k ++, curCol ++)
+    {
+        for(nzRow = k; nzRow < eqn && !a[nzRow][curCol]; nzRow ++);
+        if(nzRow == eqn) {k --; continue;}
+        for(int j = k; j <= xn; j ++)
+            std::swap(a[k][j], a[nzRow][j]);
+        int kcInv = Inv(a[k][curCol], mod);
+        for(int j = k; j <= xn; j ++)
+            a[k][j] = 1LL * a[k][j] * kcInv % mod;
+        for(int i = 0; i < eqn; i ++)
+        {
+            if(i == k) continue;
+            int ta = a[i][curCol];
+            for(int j = k; j <= xn; j ++)
+                AddMod(a[i][j], mod - 1LL * a[k][j] * ta % mod);
+        }
+    }
+    for(int i = k; i < eqn; i ++) if(a[i][curCol]) return -1;
+    if(k < xn) return xn - k;
+    for(int i = 0; i < eqn; i ++)
         x[i] = a[i][xn];
     return 0;
 }
