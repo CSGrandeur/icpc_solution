@@ -50,6 +50,52 @@ int sLen = strlen(st);
 int minLoopLen = sLen - nex[sLen];
 ```
 
+## 扩展KMP
+
+求模式串与主串每个后缀的最长公共前缀（LCP），nex保存模式串自身每个后缀LCP，ext保存模式串与主串每个后缀LCP。
+
+```cpp
+char ps[maxn], ms[maxn];
+int nex[maxn], ext[maxn];
+void GetNext(char ps[], int n)
+{
+    nex[0] = n;
+    int now = 0, p0 = 1;
+    while(ps[now] == ps[now + 1] && now + 1 < n) now ++;
+    nex[1] = now;
+    for(int i = 2; i < n; i ++)
+    {
+        if(i + nex[i - p0] < nex[p0] + p0) nex[i] = nex[i - p0];
+        else
+        {
+            now = std::max(0, nex[p0] + p0 - i);
+            while(ps[now] == ps[i + now] && i + now < n) now ++;
+            nex[i] = now;
+            p0 = i;
+        }
+    }
+}
+void ExtKmp(char ms[], char ps[], int m, int n)
+{
+    GetNext(ps, n);
+    int now = 0, p0 = 0;
+    while(ms[now] == ps[now] && now < std::min(m, n)) now ++;
+    ext[0] = now;
+    for(int i = 1; i < m; i ++)
+    {
+        if(i + nex[i - p0] < ext[p0] + p0) ext[i] = nex[i - p0];
+        else
+        {
+            now = ext[p0] + p0 - i;
+            now = std::max(now, 0);
+            while(ps[now] == ms[i + now] && now < n && now + i < m) now ++;
+            ext[i] = now;
+            p0 = i;
+        }
+    }
+}
+```
+
 ## 后缀数组
 
 调用前需要将关键值数组末尾设为0，以n+1长度调用
@@ -184,7 +230,7 @@ void SamInit()
     stp = slast = 0;
     smn[stp ++].Init();
 }
-void SamAdd(char c)
+void SamAdd(int c)
 {
     int cur = stp ++, p = slast;
     smn[cur].Init(smn[slast].len + 1);
