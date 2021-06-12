@@ -66,7 +66,6 @@ DA(r, sa, n + 1, 128);
 
 
 ```cpp
-const int maxn = 2e5 + 10;
 int wa[maxn], wb[maxn], wv[maxn], ws[maxn];
 int sa[maxn];
 inline int DACMP(int *r, int a, int b, int l)
@@ -163,5 +162,52 @@ void CalLcp(int r[], int sa[], int n)
     for(i = 1; i <= n; i ++) rk[sa[i]] = i;
     for(i = 0; i < n; lcp[rk[i ++]] = k)
         for(k -= !!k, j = sa[rk[i] - 1]; r[i + k] == r[j + k]; k ++);
+}
+```
+
+
+## 后缀自动机
+
+结点数要开字符串长度二倍
+
+```cpp
+struct SamNode
+{
+    int len, link;
+    std::unordered_map<int, int> nex;
+    void Init(int l_ = 0){len = l_; link = -1; nex.clear();}
+};
+SamNode smn[maxn];
+int stp, slast;
+void SamInit()
+{
+    stp = slast = 0;
+    smn[stp ++].Init();
+}
+void SamAdd(char c)
+{
+    int cur = stp ++, p = slast;
+    smn[cur].Init(smn[slast].len + 1);
+    slast = cur;
+    cnt[cur] = 1;
+    for(; p != -1 && !smn[p].nex.count(c); p = smn[p].link)
+        smn[p].nex[c] = cur;
+    if(p == -1) smn[cur].link = 0;
+    else
+    {
+        int q = smn[p].nex[c];
+        if(smn[p].len + 1 == smn[q].len) smn[cur].link = q;
+        else
+        {
+            int clone = stp ++;
+            cnt[clone] = 0;
+            smn[clone].len = smn[p].len + 1;
+            smn[clone].nex = smn[q].nex;
+            smn[clone].link = smn[q].link;
+            for(; p != -1 && smn[p].nex[c] == q; p = smn[p].link)
+                smn[p].nex[c] = clone;
+            smn[q].link = smn[cur].link = clone;
+        }
+    }
 }
 ```
