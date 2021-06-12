@@ -24,35 +24,35 @@ int b3[35];
 void ModAdd(int &x, int y){ (x += y) %= mod;}
 int Calc()
 {
-	for(int i = 0; i <= k; i ++) memset(dp[i], 0, sizeof(int) * (1 << m | 1));
-	dp[0][0] = 1;
-	for(int i = 0; i < k; i ++)
-	{
-		int amask = 0;
-		for(int j = 0; j < m; j ++)
-			amask |= (a[j] >> i & 1) << j;
-		for(int j = (1 << m) - 1; j >= 0; j --)
-		{
-			ModAdd(dp[i + 1][j], dp[i][j]);
-			ModAdd(dp[i + 1][j ^ amask], (long long)dp[i][j] * b3[i] % mod);
-		}
-	}
-	return dp[k][(1 << m) - 1];
+    for(int i = 0; i <= k; i ++) memset(dp[i], 0, sizeof(int) * (1 << m | 1));
+    dp[0][0] = 1;
+    for(int i = 0; i < k; i ++)
+    {
+        int amask = 0;
+        for(int j = 0; j < m; j ++)
+            amask |= (a[j] >> i & 1) << j;
+        for(int j = (1 << m) - 1; j >= 0; j --)
+        {
+            ModAdd(dp[i + 1][j], dp[i][j]);
+            ModAdd(dp[i + 1][j ^ amask], (long long)dp[i][j] * b3[i] % mod);
+        }
+    }
+    return dp[k][(1 << m) - 1];
 }
 int main()
 {
-	b3[0] = 3;
-	for(int i = 1; i < 32; i ++) b3[i] = (long long)b3[i - 1] * b3[i - 1] % mod;
-	while(scanf("%d%d%d", &n, &m, &k) != EOF)
-	{
-		int ans = 0;
-		for(int i = 0; i < n; i ++)
-		{
-			for(int j = 0; j < m; j ++)
-				scanf("%d", &a[j]);
-			ModAdd(ans, Calc());
-		}
-		printf("%d\n", ans);
-	}
-	return 0;
+    b3[0] = 3;
+    for(int i = 1; i < 32; i ++) b3[i] = (long long)b3[i - 1] * b3[i - 1] % mod;
+    while(scanf("%d%d%d", &n, &m, &k) != EOF)
+    {
+        int ans = 0;
+        for(int i = 0; i < n; i ++)
+        {
+            for(int j = 0; j < m; j ++)
+                scanf("%d", &a[j]);
+            ModAdd(ans, Calc());
+        }
+        printf("%d\n", ans);
+    }
+    return 0;
 }
