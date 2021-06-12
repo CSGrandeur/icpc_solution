@@ -57,7 +57,7 @@ int minLoopLen = sLen - nex[sLen];
 ```cpp
 char ps[maxn], ms[maxn];
 int nex[maxn], ext[maxn];
-void GetNext(char ps[], int n)
+void ExtNext(char ps[], int n)
 {
     nex[0] = n;
     int now = 0, p0 = 1;
