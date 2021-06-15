@@ -125,11 +125,11 @@ LL Inv(LL a, LL mod)
 ### 逆元打表
 
 ```cpp
-int invList[mod + 10];
-void GetInv(int mod)
+int invList[maxn];
+void GetInvList(int mod)
 {
     invList[1] = 1;
-    for(int i = 2; i < mod; i ++)
+    for(int i = 2; i < maxn; i ++)
         invList[i] = 1LL * (mod - mod / i) * invList[mod % i] % mod;
 }
 ```
