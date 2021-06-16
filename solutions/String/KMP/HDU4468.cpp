@@ -1,0 +1,79 @@
+// difficulty: 4
+// Spy
+// 当你以为 KMP 考无可考时，这道题堪称惊艳。
+// 题意是给出串 r ，求最短的、能够按以下规则拼接成 r 的 s：
+// s 的若干个前缀顺序拼接，最后加上 s 自身。
+// 初始化 s 为空，动态生成：
+// - 当前的生成串 s 匹配到末尾时，标记当前匹配成功的主串的位置
+// - 当失配指针指向开头（即无法再下一步）时，从上次标记的成功位置到
+// - 最后，将上次匹配成功位置到主串末尾都拼接在生成串 s 末尾
+// 需要很灵活地运用 Build Next 与 Match 的操作，对失配指针与坐标的关系足够熟悉。
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+const int maxn = 1e5 + 10;
+char ms[maxn], ps[maxn];
+int ptp;
+int nex[maxn];
+int KmpBuild(char ms[], char ps[], int nex[])
+{
+    nex[0] = -1;
+    ptp = 0;
+    int mark = 0;
+    for(int i = 0, j = -1; ms[i]; )
+    {
+        if(j == -1)
+        {
+            for(int k = mark; k <= i; k ++)
+            {
+                ps[ptp] = ms[k];
+                for(j = nex[ptp]; j != -1 && ps[j] != ps[ptp]; j = nex[j]);
+                nex[++ ptp] = ++ j;
+            }           
+            mark = ++ i;
+        }
+        else if(ms[i] == ps[j])
+        {
+            if(j == ptp - 1) mark = i + 1, j = nex[j + 1];
+            else ++ j;
+            ++ i;
+        }
+        else
+            j = nex[j];
+    }
+    return ptp + strlen(ms) - mark;
+}
+#ifdef CPC
+#include<time.h>
+void DataGen()
+{
+    srand(time(0));
+    freopen("test.in", "wb", stdout);
+    int t = 100;
+    while(t --)
+    {
+        int n = t > 20 ? 4 : (rand() % (maxn / 10) + 1);
+        int almod = rand() & 1 ? 4 : 26;
+        for(int i = 0; i < n; i ++)
+            ps[i] = rand() % almod + 'a';
+        ps[n] = ms[0] = 0;
+        int nowlimit = t > 20 ? 10 : maxn - 10;
+        for(; strlen(ms) < nowlimit - 2 * n; strncat(ms, ps, rand() % n + 1));
+        puts(ms);
+    }
+    freopen("test.in", "rb", stdin);
+    freopen("test.out", "wb", stdout);
+}
+#endif
+int main()
+{
+    #ifdef CPC
+    DataGen();
+    #endif
+    int t = 1;
+    while(scanf("%s", ms) != EOF)
+    {
+        printf("Case %d: %d\n", t ++, KmpBuild(ms, ps, nex));
+    }
+    return 0;
+}
