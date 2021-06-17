@@ -318,3 +318,27 @@ int GaussElMod(int eqn, int xn, int mod)
     return 0;
 }
 ```
+
+
+## 微分&差分
+
+### 二阶差分求区间加等差数列
+
+区间加等差数列可用线段树实现，但复杂度较高。如果是一系列操作之后进行静态查询，可用二阶差分。
+
+`[l, r)` 左闭右开区间，执行 **两遍** `PreSum`可恢复更新后数组。
+
+```cpp
+void AddAS(int l, int r, int lfirst, int dif)
+{
+    d2[l] += lfirst;
+    d2[l + 1] += dif - lfirst;
+    d2[r] -= (r - l) * dif + lfirst;
+    d2[r + 1] -= (l - r + 1) * dif - lfirst;
+}
+void PreSum(int n)
+{
+    for(int i = 1; i < n; i ++)
+        d2[i] += d2[i - 1];
+}
+```

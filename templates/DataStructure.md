@@ -445,6 +445,79 @@ int Query(int now, int left, int right, int up, int down, int sl, int sr, int su
 }
 ```
 
+### 常规线段树
+
+线段树灵活性很强，重在理解和使用，无法固定模板，这里仅以“区间加等差数列lasy标记、统计区间和”为例。
+
+```cpp
+struct SegTree
+{
+    int seg[maxn << 5];
+    int lasyFirst[maxn << 5], lasyDif[maxn << 5];
+    SegTree(){Init();}
+    // 初始化用实际输入尺寸 n 以免复杂度过高
+    void Init(){memset(lasyFirst, -1, sizeof(int) * (n << 5)); memset(seg, 0, sizeof(int) * (n << 5));}
+    int BuildTree(int now, int left, int right, int *arr=NULL)
+    {
+        if(left >= right) return 0;
+        int &sn = seg[now];
+        if(left == right - 1) return sn = arr == NULL ? 0 : arr[left];
+        int mid = left + right >> 1;
+        if(mid > left) sn += BuildTree(now << 1, left, mid, arr);
+        if(right > mid) sn += BuildTree(now << 1 | 1, mid, right, arr);
+        return sn;
+    }
+    void UpdateNowNode(int now, int left, int right, int fst, int dif)
+    {
+        int rangeN = right - left;
+        seg[now] += fst * rangeN + ((rangeN - 1) * rangeN * dif >> 1);
+        if(lasyFirst[now] == -1) lasyFirst[now] = lasyDif[now] = 0;
+        lasyFirst[now] += fst;
+        lasyDif[now] += dif;
+    }
+    void PushDown(int now, int left, int right)
+    {
+        if(lasyFirst[now] == -1 || left >= right) return;
+        int mid = left + right >> 1;
+        UpdateNowNode(now << 1, left, mid, lasyFirst[now], lasyDif[now]);
+        UpdateNowNode(now << 1 | 1, mid, right, lasyFirst[now] + (mid - left) * lasyDif[now], lasyDif[now]);
+        lasyFirst[now] = lasyDif[now] = -1;
+    }
+    void PushUp(int now)
+    {
+        while(now)
+        {
+            seg[now] = seg[now << 1] + seg[now << 1 | 1];
+            now >>= 1;
+        }
+    }
+    int Query(int now, int left, int right, int i, int j)
+    {
+        if(left >= right) return 0;
+        if(i <= left && j >= right) return seg[now];
+        PushDown(now, left, right);
+        int mid = left + right >> 1;
+        int ret = 0;
+        if(i < mid) ret += Query(now << 1, left, mid, i, j);
+        if(j > mid) ret += Query(now << 1 | 1, mid, right, i, j);
+        return ret;
+    }
+    void Add(int now, int left, int right, int i, int j, int fst, int dif)
+    {
+        if(left >= right) return;
+        if(i <= left && j >= right)
+            UpdateNowNode(now, left, right, fst + dif * (left - i), dif);
+        else
+        {
+            PushDown(now, left, right);
+            int mid = left + right >> 1;
+            if(i < mid) Add(now << 1, left, mid, i, j, fst, dif);
+            if(j > mid) Add(now << 1 | 1, mid, right, i, j, fst, dif);
+            PushUp(now);
+        }
+    }
+};
+```
 
 ## 可持久化线段树
 
