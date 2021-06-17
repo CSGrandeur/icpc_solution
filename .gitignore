@@ -1,4 +1,4 @@
 workspace
 .vscode
-./*.in
-./*.out
+*.in
+*.out
