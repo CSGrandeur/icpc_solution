@@ -1,7 +1,7 @@
 // difficulty: 3
 // Chip Factory
 // 异或最大值升级版，对每个数二进制建Trie，枚举两数结合，在Trie上尽可能反向移动
-// 被别地，枚举的两个数要先在 Trie 上删除
+// 特别地，枚举的两个数要先在 Trie 上删除
 
 #include<stdio.h>
 #include<stdlib.h>
