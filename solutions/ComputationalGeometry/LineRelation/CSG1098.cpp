@@ -1,7 +1,11 @@
 // difficulty: 2
 // 共线点
-// 旋转卡壳启蒙。如果一条线穿过三个线段，则这条线通过调整一定可以靠到两条线段的端点。
+// 方法1： 旋转卡壳启蒙。如果一条线穿过三个线段，则这条线通过调整一定可以靠到两条线段的端点。
 // 枚举两条线段的端点组合连线，判断与第三条线段的交点是否在第三条线段内。
+// 方法2： 题目对数据进行了诸多限制，可以理解位线段1和3盖住了一个梯形区域，线段2有点在这个区域内即可。
+// 可以用叉积判断线段 2 的左右端点是否在区域内。
+
+// 方法1
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
@@ -63,3 +67,45 @@ int main()
     }
     return 0;
 }
+
+
+/*
+// 方法2
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<math.h>
+#include<algorithm>
+const double eps = 1e-8;
+struct Point
+{
+    double x, y;
+    Point(){x = y = 0;}
+    Point(double a, double b) {x = a, y = b;}
+    inline Point operator-(const Point &b)const 
+    {return Point(x - b.x, y - b.y);}
+    inline double cross(const Point &b, const Point &c)const
+    {return (b.x - x) * (c.y - y) - (c.x - x) * (b.y - y);}
+};
+Point p[3][2];
+bool Judge()
+{
+    return p[0][0].cross(p[2][0], p[1][1]) < eps &&
+        p[2][1].cross(p[0][1], p[1][0]) < eps;
+}
+int main()
+{
+    int a, b, y;
+    while(scanf("%d%d%d", &a, &b, &y) != EOF)
+    {
+        for(int i = 0; i < 3; i ++)
+        {
+            p[i][0] = Point(a, y);
+            p[i][1] = Point(b, y);
+            if(i < 2) scanf("%d%d%d", &a, &b, &y);
+        }
+        printf(Judge() ? "Yes\n" : "No\n");
+    }
+    return 0;
+}
+*/
