@@ -352,3 +352,56 @@ void PreSum(int n)
         d2[i] += d2[i - 1];
 }
 ```
+
+## 多项式
+
+### 快速傅里叶变换
+
+将 $y = a_{0} + a_{1}x + a_{2}x^{2} + ... a_{n}x^{n}$ 理解为 $a_{i}$ 为未知数的方程，则 $n+1$ 个 $x$ 的合适取值构建 $n+1$ 个方程的方程组，可以唯一确定$a_{0}$到$a_{n}$的值。
+
+这样的方程组可以表示成 $((x_{0}, y_{0}), (x_{1}, y_{1}), ... (x_{n}, y_{n}))$ 的数对向量，FFT就是把系数序列$a_{i}$转为数对序列的方法。
+
+调用需把 $len$ 对齐到最近的 $2^{k}$，$y$ 补 0 。 `FFT()` 的 `on` 参数取 `1` 为正变换，取 `0` 为反变换。
+
+做大数乘法时需四舍五入最终反变换的结果（`+0.5`后取整）。
+
+```cpp
+const double pi = acos(-1);
+typedef std::complex<double> Complex;
+void BitRevChange(Complex y[], int len) 
+{
+    // len should be 2^k
+    std::vector<int> rev(len, 0);
+    for (int i = 0; i < len; i ++) 
+    {
+        rev[i] = rev[i >> 1] >> 1;
+        if (i & 1) rev[i] |= len >> 1;
+    }
+    for (int i = 0; i < len; ++i) 
+        if (i < rev[i]) std::swap(y[i], y[rev[i]]);
+    return;
+}
+void FFT(Complex y[], int len, int on=1)
+{
+    // on == 1: DFT; on == -1: IDFT; len should be 2^k
+    BitRevChange(y, len);
+    for(int h = 2; h <= len; h <<= 1)
+    {
+        Complex wn(cos(2 * pi / h), on * sin(2 * pi / h));
+        for(int j = 0; j < len; j += h)
+        {
+            Complex w(1, 0);
+            for(int k = j; k < j + h / 2; k ++)
+            {
+                Complex u = y[k];
+                Complex t = w * y[k + h / 2];
+                y[k] = u + t;
+                y[k + h / 2] = u - t;
+                w = w * wn;
+            }
+        }
+    }
+    if(on != -1) return;
+    for(int i = 0; i < len; i ++) y[i].real(y[i].real() / len);
+}
+```
