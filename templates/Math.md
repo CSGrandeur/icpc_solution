@@ -51,15 +51,12 @@ void SetPrime()
 ## 快速幂取模
 
 ```cpp
-int PowMod(int a, int n, int mod)
+// const int mod = ...
+int PowMod(int a, int n, int mod=mod)
 {
     int ret = 1;
-    while(n)
-    {
+    for(; n; n >>= 1, a = 1LL * a * a % mod)
         if(n & 1) ret = 1LL * ret * a % mod;
-        a = 1LL * a * a % mod;
-        n >>= 1;
-    }
     return ret;
 }
 ```
@@ -355,7 +352,7 @@ void PreSum(int n)
 
 ## 多项式
 
-### 快速傅里叶变换
+### 快速傅里叶变换（FFT）
 
 将 $y = a_{0} + a_{1}x + a_{2}x^{2} + ... a_{n}x^{n}$ 理解为 $a_{i}$ 为未知数的方程，则 $n+1$ 个 $x$ 的合适取值构建 $n+1$ 个方程的方程组，可以唯一确定$a_{0}$到$a_{n}$的值。
 
@@ -391,17 +388,81 @@ void FFT(Complex y[], int len, int on=1)
         for(int j = 0; j < len; j += h)
         {
             Complex w(1, 0);
-            for(int k = j; k < j + h / 2; k ++)
+            for(int k = j; k < j + (h >> 1); k ++)
             {
-                Complex u = y[k];
-                Complex t = w * y[k + h / 2];
+                Complex u = y[k], t = w * y[k + (h >> 1)];
                 y[k] = u + t;
-                y[k + h / 2] = u - t;
+                y[k + (h >> 1)] = u - t;
                 w = w * wn;
             }
         }
     }
     if(on != -1) return;
     for(int i = 0; i < len; i ++) y[i].real(y[i].real() / len);
+}
+```
+
+### 数论变换（NTT）
+
+当多项式系数都是整数，且问题可以对大质数取模处理（即使题目没要求取模，但数据范围够小、取模不影响结果）时，可利用原根的性质，把FFT中的单位根替换为原根，其余原理类似，模板也很相似。
+
+NTT全部为整数运算，相对FFT精度更好、速度更快。
+
+通常模数常见的有 `998244353`、`1004535809`、`469762049`，这几个的原根都是 `3`。
+
+```cpp
+void BitRevChange(int y[], int len) 
+{
+    // len should be 2^k
+    std::vector<int> rev(len, 0);
+    for (int i = 0; i < len; i ++) 
+    {
+        rev[i] = rev[i >> 1] >> 1;
+        if (i & 1) rev[i] |= len >> 1;
+    }
+    for (int i = 0; i < len; ++i) 
+        if (i < rev[i]) std::swap(y[i], y[rev[i]]);
+    return;
+}
+void NTT(int y[], int len, int on=1)
+{
+    // on == 1: NTT; on == -1: INTT; len should be 2^k
+    BitRevChange(y, len);
+    for(int h = 2; h <= len; h <<= 1)
+    {
+        int wn = PowMod(rog, (mod - 1) / h);
+        if(on == -1) wn = PowMod(wn, mod - 2);
+        for(int j = 0; j < len; j += h)
+        {
+            int w = 1;
+            for(int k = j; k < j + (h >> 1); k ++)
+            {
+                int u = y[k], t = 1LL * w * y[k + (h >> 1)] % mod;
+                y[k] = (u + t) % mod;
+                y[k + (h >> 1)] = (u - t + mod) % mod;
+                w = 1LL * w * wn % mod;
+            }
+        }
+    }
+    if(on != -1) return;
+    for(int i = 0, leninv = PowMod(len, mod - 2); i < len; i ++) 
+        y[i] = 1LL * y[i] * leninv % mod;
+}
+int main()
+{
+    while(scanf("%d%d", &n, &m) != EOF)
+    {
+        for(int i = 0; i <= n; i ++) scanf("%d", &a[i]);  // n 阶多项式有 n + 1 个系数
+        for(int i = 0; i <= m; i ++) scanf("%d", &b[i]);
+        int len = 1;
+        for(; len <= n + m; len <<= 1);
+        for(int i = n + 1; i < len; i ++) a[i] = 0;
+        for(int i = m + 1; i < len; i ++) b[i] = 0;
+        NTT(a, len); NTT(b, len);
+        for(int i = 0; i < len; i ++) a[i] = 1LL * a[i] * b[i] % mod;
+        NTT(a, len, -1);
+        for(int i = 0; i <= n + m; i ++) printf("%d%c", a[i], " \n"[i == n + m]);
+    }
+    return 0;
 }
 ```
