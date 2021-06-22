@@ -376,7 +376,6 @@ void BitRevChange(Complex y[], int len)
     }
     for (int i = 0; i < len; ++i) 
         if (i < rev[i]) std::swap(y[i], y[rev[i]]);
-    return;
 }
 void FFT(Complex y[], int len, int on=1)
 {
@@ -404,11 +403,13 @@ void FFT(Complex y[], int len, int on=1)
 
 ### 数论变换（NTT）
 
-当多项式系数都是整数，且问题可以对大质数取模处理（即使题目没要求取模，但数据范围够小、取模不影响结果）时，可利用原根的性质，把FFT中的单位根替换为原根，其余原理类似，模板也很相似。
+当多项式系数都是整数，且问题可以对大质数`p`取模处理（即使题目没要求取模，但数据范围够小、取模不影响结果）时，可利用原根的性质，把FFT中的单位根替换为原根，其余原理类似，模板也很相似。
 
 NTT全部为整数运算，相对FFT精度更好、速度更快。
 
-通常模数常见的有 `998244353`、`1004535809`、`469762049`，这几个的原根都是 `3`。
+要求序列长度`n`是`p-1`的约数。经常使用的模数有 `998244353`、`1004535809`、`469762049`，这几个的原根都是 `3`。
+
+
 
 ```cpp
 void BitRevChange(int y[], int len) 
@@ -422,7 +423,6 @@ void BitRevChange(int y[], int len)
     }
     for (int i = 0; i < len; ++i) 
         if (i < rev[i]) std::swap(y[i], y[rev[i]]);
-    return;
 }
 void NTT(int y[], int len, int on=1)
 {
@@ -430,8 +430,8 @@ void NTT(int y[], int len, int on=1)
     BitRevChange(y, len);
     for(int h = 2; h <= len; h <<= 1)
     {
-        int wn = PowMod(rog, (mod - 1) / h);
-        if(on == -1) wn = PowMod(wn, mod - 2);
+        int wn = PowMod(rog, (mod - 1) / h, mod);
+        if(on == -1) wn = PowMod(wn, mod - 2, mod);
         for(int j = 0; j < len; j += h)
         {
             int w = 1;
@@ -445,7 +445,7 @@ void NTT(int y[], int len, int on=1)
         }
     }
     if(on != -1) return;
-    for(int i = 0, leninv = PowMod(len, mod - 2); i < len; i ++) 
+    for(int i = 0, leninv = PowMod(len, mod - 2, mod); i < len; i ++) 
         y[i] = 1LL * y[i] * leninv % mod;
 }
 int main()
