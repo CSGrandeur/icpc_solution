@@ -466,3 +466,31 @@ int main()
     return 0;
 }
 ```
+
+#### 基于NTT计算多项式变量0~n-1次幂代入
+
+设多项式为 `f(x)`，如果 `w` 不是 `p` 的原根，但 `w ^ n % p == 1`，求 `f(w^0)`~`f(w^(n-1))`
+
+可按NTT迭代公式进行，`wn` 和 `y[k + (h>>1)]` 的计算略有不同。
+
+```cpp
+void NTT(int y[], int len, int rog, int mod)
+{
+    BitRevChange(y, len);
+    for(int h = 2; h <= len; h <<= 1)
+    {
+        int wn = PowMod(rog, len / h, mod);
+        for(int j = 0; j < len; j += h)
+        {
+            int w = 1, wn2len = PowMod(wn, h >> 1, mod);
+            for(int k = j; k < j + (h >> 1); k ++)
+            {
+                int u = y[k], t = 1LL * w * y[k + (h >> 1)] % mod;
+                y[k] = (u + t) % mod;
+                y[k + (h >> 1)] = (u + 1LL * t * wn2len) % mod;
+                w = 1LL * w * wn % mod;
+            }
+        }
+    }
+}
+```
