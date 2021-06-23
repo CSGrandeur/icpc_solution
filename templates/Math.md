@@ -85,9 +85,8 @@ int FermatInv(int a, int b)
 ```cpp
 typedef long long LL;  
 LL ExGCD(LL a, LL b, LL &x, LL &y)
-{ 
-    //
-    if(b == 0)
+{
+    if(!b)
     {
         x = 1, y = 0;
         return a;
@@ -101,9 +100,9 @@ LL ExGCD(LL a, LL b, LL &x, LL &y)
 ```cpp
 int ExGcdInv(int a, int mod)
 {
-    int x, y;
-    ExGCD(a, b, x, y);
-    return x;
+    LL x, y;
+    ExGCD(a, mod, x, y);
+    return (x % mod + mod) % mod;
 }
 ```
 
@@ -115,7 +114,7 @@ int ExGcdInv(int a, int mod)
 LL Inv(LL a, LL mod)
 {
     if(a == 1) return 1;
-    return (mod - mod / a) * Inv(mod % i) % mod;
+    return (mod - mod / a) * Inv(mod % a) % mod;
 }
 ```
 
