@@ -1,3 +1,4 @@
+// difficulty: 2
 // Binary Median
 // 好多年不做题，果然一个 long long 都 debug好几遍
 // binary 是个混淆项，当 long long 处理，map记录被拿掉的数字，拿左边或右边按情况模拟左右移，跳过被拿掉的即可。

@@ -1,3 +1,4 @@
+// difficulty: 1
 // Same Parity Summands
 // 这题比1355D容易一些，根据奇偶性凑 1 或 2 就可以了，没什么要证明的
 #include<stdio.h>

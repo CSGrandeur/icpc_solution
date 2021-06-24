@@ -1,4 +1,5 @@
-//Watermelon
+// difficulty: 1
+// Watermelon
 // 多年没碰算法题，最近打算重新拾起，先尝试个水题恢复下自信，没想到还WA了一次，因为我竟然把 even 脑补成了奇数……
 #include<stdio.h>
 #include<string.h>

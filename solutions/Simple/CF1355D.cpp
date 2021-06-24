@@ -1,3 +1,5 @@
+// difficulty: 2
+// Game With Array
 // 虽然看了答案构造 n-1 个 1 ，剩余数量大于 n 很简单。
 // 但不知道怎么证明不满足这个情况的时候一定无解，数学还是怕。
 #include<stdio.h>
