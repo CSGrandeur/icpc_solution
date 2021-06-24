@@ -1,5 +1,59 @@
 # 数据结构
 
+## 哈希
+
+### 数值哈希
+
+按`unordered_map`接口设计
+
+```cpp
+const int hashmod = 1e5 + 3;
+const int hashnum = hashmod;
+template<typename MPTP_K, typename MPTP_V>
+struct HashTable
+{
+    struct HashNode
+    {
+        MPTP_K first;
+        MPTP_V second;
+        int nex;
+    };
+    HashNode *ht;
+    int *rcd;
+    int sz;
+    HashTable(){ht = new HashNode[hashnum]; rcd = new int[hashmod]; Init();}
+    ~HashTable(){delete ht; delete rcd;}
+    HashNode *begin(){return ht;}
+    HashNode *end(){return ht + sz;}
+    void Init(){sz = 0; memset(rcd, -1, sizeof(int) * hashmod);}
+    void clear() {Init();}
+    int size() {return sz;}
+    int GetHash(MPTP_K x) {return (x ^ hashmod) % hashmod;}
+    int Find(MPTP_K x)
+    {
+        for(int i = rcd[GetHash(x)]; i != -1; i = ht[i].nex)
+            if(ht[i].first == x) return i;
+        return -1;
+    }
+    int _Insert(MPTP_K x, MPTP_V v=0)
+    {
+        int hs = GetHash(x);
+        ht[sz].nex = rcd[hs];
+        ht[sz].first = x;
+        ht[sz].second = v;
+        rcd[hs] = sz;
+        return sz ++;
+    }
+    HashNode &insert(MPTP_K x, MPTP_V v=0) 
+    {
+        int ith = Find(x);
+        return ht[ith == -1 ? _Insert(x, v) : ith];
+    }
+    bool count(MPTP_K x) {return Find(x) != -1;}
+    MPTP_V &operator[](MPTP_K x){return insert(x).second;}
+};
+```
+
 ## 排序
 
 ### 归并排序
