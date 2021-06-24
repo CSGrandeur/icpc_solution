@@ -493,3 +493,71 @@ void NTT(int y[], int len, int rog, int mod)
     }
 }
 ```
+
+
+## 高精度
+
+更新中...
+
+```cpp
+struct BigInt
+{
+    typedef std::vector<long long> VCT;
+    VCT x;
+    const int unt = 1e8;
+    void Init(){x.clear();}
+    BigInt(){}
+    BigInt(const long long &a){Add(a);}
+    BigInt(const int &a){Add(a);}
+    BigInt(const BigInt &b){x = b.x;}
+    BigInt(VCT &v){x = v;}
+    void Add(const long long &a)
+    {
+        long long cur = a;
+        for(auto &it : x)
+        {
+            it += cur;
+            cur = it / unt;
+            it = it % unt;
+        }
+        while(cur) x.push_back(cur % unt), cur /= unt;
+    }
+    BigInt &operator+=(long long a){Add(a); return *this;}
+    BigInt operator+(long long a){BigInt tmp(x); tmp += a; return tmp;}
+    BigInt &operator=(long long a){x.clear(); Add(a); return *this;}
+    void Add(const BigInt &b)
+    {
+        int i;
+        long long cur = 0;
+        const VCT &y = b.x;
+        if(x.size() < y.size()) x.resize(y.size(), 0);
+        for(i = 0; i < x.size(); i ++)
+        {
+            x[i] += cur + (i < y.size() ? y[i] : 0);
+            cur = x[i] / unt;
+            x[i] %= unt;
+        }
+        while(cur) x.push_back(cur % unt), cur /= unt;
+    }
+    BigInt &operator+=(const BigInt &b){Add(b); return *this;}
+    BigInt operator+(const BigInt &b){BigInt tmp(x); tmp += b; return tmp;}
+    BigInt &operator=(const BigInt &b){x = b.x; return *this;}
+    operator long long(){return x[0];}
+    void Print()
+    {
+        if(x.size() == 0) {printf("0"); return; }
+        for(int i = x.size() - 1; i >= 0; i --)
+            printf(i == x.size() - 1 ? "%lld" : "%08lld", x[i]);
+    }
+    void Print3c()
+    {
+        if(x.size() == 0) {printf("0"); return; }
+        char *buf = new char[x.size() * 8 + 1], *p = buf;
+        for(int i = 0, j = x.size() - 1; i < x.size(); i ++, j --)
+            p += sprintf(p, i ? "%08lld" : "%lld", x[j]);
+        for(int i = strlen(buf) - 1, j = 0; buf[j]; j ++, i --)
+            printf(",%c" + (i % 3 != 2 || !j), buf[j]);
+        delete []buf;
+    }
+};
+```
