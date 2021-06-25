@@ -1,3 +1,5 @@
+// difficulty: 1
+// Number Sequence
 // KMP查找首次出现位置，字符串改成int来考察
 #include<stdio.h>
 #include<string.h>

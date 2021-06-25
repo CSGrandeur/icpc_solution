@@ -1,4 +1,5 @@
-// HDU 2087	剪花布条
+// difficulty: 1
+// 剪花布条
 // KMP 统计匹配次数，每次匹配成功后模式串从头匹配主串下一个位置
 #include<stdio.h>
 #include<string.h>

@@ -1,3 +1,5 @@
+// difficulty: 1
+// Oulipo
 // 还是KMP统计出现次数
 #include<stdio.h>
 #include<string.h>

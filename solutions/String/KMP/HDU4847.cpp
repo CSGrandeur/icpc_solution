@@ -1,3 +1,5 @@
+// difficulty: 2
+// Wow! Such Doge!
 // 还是KMP统计个数，只是输入别致一些
 #include<stdio.h>
 #include<string.h>
