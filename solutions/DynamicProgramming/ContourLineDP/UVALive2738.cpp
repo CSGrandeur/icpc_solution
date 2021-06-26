@@ -111,11 +111,7 @@ struct HashTable
         return ht[ith == -1 ? _Insert(x, v) : ith];
     }
     bool count(MPTP_K x) {return Find(x) != -1;}
-    MPTP_V &operator[](MPTP_K x)
-    {
-        MPTP_V z = 5;
-        return insert(x).second;
-    }
+    MPTP_V &operator[](MPTP_K x){return insert(x).second;}
 };
 typedef HashTable<int, BigInt> DPMAP;
 const int maxn = 13;
