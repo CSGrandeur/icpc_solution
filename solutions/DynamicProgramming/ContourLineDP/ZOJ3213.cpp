@@ -16,7 +16,6 @@
 #include<string>
 #include<vector>
 const int hashmod = 1e4 + 3;
-const int hashnum = 3e4 + 10;
 
 template<typename MPTP_K, typename MPTP_V>
 struct HashTable
@@ -117,7 +116,6 @@ inline void LineShift(DPMAP &nowmp, DPMAP &nexmp)
 }
 inline bool Blocked(int i, int j) {return i < 0 || i >= n || j < 0 || j >= m || !dg[i][j];}
 inline bool End(int i, int j) {return i == n - 1 && j == m - 1;}
-void Print2(CODET k) { while(k) printf("%lld", k & 1), k >>= 1; printf(" ****\n");}
 ANST CLDP()
 {
     int now = 0, nex = 1;
