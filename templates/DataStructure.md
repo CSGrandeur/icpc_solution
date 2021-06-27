@@ -7,8 +7,7 @@
 按`unordered_map`接口设计
 
 ```cpp
-const int hashmod = 1e5 + 3;
-const int hashnum = hashmod;
+const int hashmod = 1e4 + 3;
 template<typename MPTP_K, typename MPTP_V>
 struct HashTable
 {
@@ -18,16 +17,15 @@ struct HashTable
         MPTP_V second;
         int nex;
     };
-    HashNode *ht;
-    int *rcd;
-    int sz;
-    HashTable(){ht = new HashNode[hashnum]; rcd = new int[hashmod]; Init();}
-    ~HashTable(){delete ht; delete rcd;}
-    HashNode *begin(){return ht;}
-    HashNode *end(){return ht + sz;}
-    void Init(){sz = 0; memset(rcd, -1, sizeof(int) * hashmod);}
+    std::vector<HashNode> ht;
+    std::vector<int> rcd;
+    HashTable(){rcd.resize(hashmod); Init();}
+    ~HashTable(){}
+    typename std::vector<HashNode>::iterator begin(){return ht.begin();}
+    typename std::vector<HashNode>::iterator end(){return ht.end();}
+    void Init(){ht.clear(); std::fill(rcd.begin(), rcd.end(), -1);}
     void clear() {Init();}
-    int size() {return sz;}
+    int size() {return ht.size();}
     int GetHash(MPTP_K x) {return (x ^ hashmod) % hashmod;}
     int Find(MPTP_K x)
     {
@@ -38,13 +36,14 @@ struct HashTable
     int _Insert(MPTP_K x, MPTP_V v=0)
     {
         int hs = GetHash(x);
-        ht[sz].nex = rcd[hs];
-        ht[sz].first = x;
-        ht[sz].second = v;
-        rcd[hs] = sz;
-        return sz ++;
+        HashNode tmp;
+        tmp.nex = rcd[hs];
+        tmp.first = x;
+        tmp.second = v;
+        ht.push_back(tmp);
+        return rcd[hs] = ht.size() - 1;
     }
-    HashNode &insert(MPTP_K x, MPTP_V v=0) 
+    HashNode &insert(MPTP_K x, MPTP_V v=0)
     {
         int ith = Find(x);
         return ht[ith == -1 ? _Insert(x, v) : ith];
