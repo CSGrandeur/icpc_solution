@@ -20,7 +20,6 @@ struct HashTable
     std::vector<HashNode> ht;
     std::vector<int> rcd;
     HashTable(){rcd.resize(hashmod); Init();}
-    ~HashTable(){}
     typename std::vector<HashNode>::iterator begin(){return ht.begin();}
     typename std::vector<HashNode>::iterator end(){return ht.end();}
     void Init(){ht.clear(); std::fill(rcd.begin(), rcd.end(), -1);}
