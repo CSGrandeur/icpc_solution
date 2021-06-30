@@ -40,6 +40,8 @@ Decode、GetLink、Set等操作可以串行，但要注意先后顺序，因为�
 
 由于每个执行都会修改CLNode的内容，当存在多个方向状态转移时，需要拷贝Decode的结果或重新从前一状态Decode。
 
+`Set` 要在 `Recode` （`Encode`包含）之前执行，因为`Recode`之后插头编号会变化。
+
 `Blocked()`, `End()`, `UD()` 要根据题目实际情况修改
 
 ```cpp
@@ -66,7 +68,7 @@ struct CLNode
     CODET Encode();
     CLNode& Decode(CODET k);                            // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
     CLNode& Recode();                                   // 给插头重编号，Recode
-    CLNode& Merge(int ith, int jth);                    // 合并插头
+    CLNode& Merge(int ith, int jth);                    // 合并插头，所有 jth 改为 ith 的编号
     CLNode& Set(int ith, int _sr=-1, int _cl=-1);       // 无颜色域时忽略 _cl 参数即可
 };
 int CLNode::GetLink(int j)
@@ -82,6 +84,7 @@ int CLNode::GetLink(int j)
 }
 CODET CLNode::Encode()
 {
+    Recode();  // 最小表示默认recode
     CODET res = rc;
     for(int i = m; i >= 0; i --)
         res = res << PL | (CODET)sr[i] << PLCL | cl[i];
