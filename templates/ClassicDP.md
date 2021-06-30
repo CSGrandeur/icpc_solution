@@ -61,12 +61,13 @@ struct CLNode
     void Init() {rc = 0; cl.resize(maxn); sr.resize(maxn);}
     int Cl(int j) {return j < 0 || !sr[j] ? -1 : cl[j];}
     int Sr(int j) {return j < 0 ? -1 : sr[j];}
-    int GetLink(int j);                             // 获取插头另一头，括号式成对插头时使用，Link State
+    CLNode& SetRc(int _rc) {rc = _rc; return *this;}    // 设置统计位rc，比如多少个独立插头
+    int GetLink(int j);                                 // 获取插头另一头，括号式成对插头时使用，Link State
     CODET Encode();
-    CLNode& Decode(CODET k);                        // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
-    CLNode& Recode();                               // 给插头重编号，Recode
-    CLNode& Merge(int ith, int jth);                // 合并插头
-    CLNode& Set(int ith, int _sr=-1, int _cl=-1);   // 无颜色域时忽略 _cl 参数即可
+    CLNode& Decode(CODET k);                            // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
+    CLNode& Recode();                                   // 给插头重编号，Recode
+    CLNode& Merge(int ith, int jth);                    // 合并插头
+    CLNode& Set(int ith, int _sr=-1, int _cl=-1);       // 无颜色域时忽略 _cl 参数即可
 };
 int CLNode::GetLink(int j)
 {
@@ -206,6 +207,46 @@ ANST CLDP()
 ZOJ 3213
 
 ```cpp
+inline void UD(DPMAP &mp, CODET k, const ANST &v)
+{
+    if(!mp.count(k)) mp[k] = 0;
+    mp[k] = std::max(mp[k], v);
+}
+void DPTrans(int i, int j, CODET k, ANST v, DPMAP &nexmp)
+{
+    cn.Decode(k);
+    int left = cn.Sr(j), up = cn.Sr(j + 1), pnum = cn.rc;
+    ANST nw = v + dg[i][j];
+    if(Blocked(i, j))
+    {
+        if(!left && !up)
+            UD(nexmp, k, v);
+    }
+    else if(!left && !up)
+    {  // 如果左和上都没插头
+        UD(nexmp, cn.Decode(0).SetRc(2).Encode(), dg[i][j]);                                // 单清当前草坪，不再移动的情况
+        UD(nexmp, k, v);                                                                    // 保持上一步插头情况
+        if(!Blocked(i + 1, j) && !Blocked(i, j + 1))
+            UD(nexmp, cn.Decode(k).Set(j, PM).Set(j + 1, PM).Recode().Encode(), nw);        // 增加双插头
+        if(pnum == PLIMIT) return;
+        if(!Blocked(i + 1, j))
+            UD(nexmp, cn.Decode(k).Set(j, PM).SetRc(pnum + 1).Recode().Encode(), nw);       // 新增向下插头，则该位置增加独立插头
+        if(!Blocked(i, j + 1))
+            UD(nexmp, cn.Decode(k).Set(j + 1, PM).SetRc(pnum + 1).Recode().Encode(), nw);   // 新增向右插头，则该位置增加独立插头
+    }
+    else if(!left + !up == 1)
+    {
+        CODET maxul = std::max(up, left), minul = std::min(up, left);
+        if(!Blocked(i, j + 1))
+            UD(nexmp, cn.Set(j, minul).Set(j + 1, maxul).Encode(), nw);
+        if(!Blocked(i + 1, j))
+            UD(nexmp, cn.Set(j, maxul).Set(j + 1, minul).Encode(), nw);
+        if(pnum == PLIMIT) return;
+        UD(nexmp, cn.Set(j, 0).Set(j + 1, 0).SetRc(pnum + 1).Encode(), nw);  // 插头终止
+    }
+    else if(left != up)
+        UD(nexmp, cn.Merge(j, j + 1).Set(j, 0).Set(j + 1, 0).Encode(), nw);
+}
 ANST CLDP()
 {
     int now = 0, nex = 1;
@@ -219,47 +260,11 @@ ANST CLDP()
         for(int j = 0; j < m; j ++)
         {
             for(auto it : dp[now])
-            {
-                CODET k = it.first;
-                // Print2(k);
-                int up = GS(k, j + 1), left = GS(k, j), pnum = GS(k, m + 1);
-                ANST nw = it.second + dg[i][j];
-                if(Blocked(i, j))
-                {
-                    if(!left && !up)
-                        UD(dp[nex], k, it.second);
-                }
-                else if(!left && !up)
-                {
-                    UD(dp[nex], SS(0, m + 1, 2), dg[i][j]);            // 单清当前草坪，不再移动的情况
-                    UD(dp[nex], k, it.second);                         // 保持上一步插头情况
-                    if(!Blocked(i + 1, j) && !Blocked(i, j + 1))
-                        UD(dp[nex], RC(SS(SS(k, j, PM), j + 1, PM)), nw);  // 增加双插头
-                    if(pnum == PLIMIT) continue;
-                    if(!Blocked(i + 1, j))
-                        UD(dp[nex], RC(SS(SS(k, j, PM), m + 1, pnum + 1)), nw);  // 增加单插头
-                    if(!Blocked(i, j + 1))
-                        UD(dp[nex], RC(SS(SS(k, j + 1, PM), m + 1, pnum + 1)), nw);  // 增加单插头
-                }
-                else if(!left + !up == 1)
-                {
-                    CODET maxul = std::max(up, left), minul = std::min(up, left);
-                    if(!Blocked(i, j + 1))
-                        UD(dp[nex], SS(SS(k, j, minul), j + 1, maxul), nw);
-                    if(!Blocked(i + 1, j))
-                        UD(dp[nex], SS(SS(k, j, maxul), j + 1, minul), nw);
-                    // UD(dp[nex], k, nw);
-                    if(pnum == PLIMIT) continue;
-                    UD(dp[nex], SS(SS(SS(k, j, 0), j + 1, 0), m + 1, pnum + 1), nw);  // 插头终止
-                }
-                else if(left != up)
-                    UD(dp[nex], SS(SS(MG(k, j, j + 1), j, 0), j + 1, 0), nw);
-            }
-            now ^= 1, nex ^= 1;
-            dp[nex].clear();
+                DPTrans(i, j, it.first, it.second, dp[nex]);
+            now ^= 1, nex ^= 1, dp[nex].clear();
         }
     }
-    CODET rescode = PLIMIT << (m + 1) * PL;
+    CODET rescode = cn.Decode(0).SetRc(PLIMIT).Encode();
     return dp[now].count(rescode) ? dp[now][rescode] : 0;
 }
 ```
