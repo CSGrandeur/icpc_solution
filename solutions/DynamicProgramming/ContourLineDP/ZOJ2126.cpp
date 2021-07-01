@@ -1,8 +1,8 @@
 // difficulty: 4
-// Rocket Mania
-// 插头DP应用。
+// Rocket Mania Plus
+// 这题是 ZOJ2125 Rocket Mania 的升级版，解题方法一样，此题难度提升在状态变多，没有第2)个关键剪枝的话可能超时。
 // 给出左端第 X 行有火柴，中间各种形状可旋转导线，求最多能点燃右端的行数。
-// 把图旋转90度处理，初始化第 X 个为 1 号插头，插头最小表示时保持 1 号不变。
+// 把图旋转90度处理，初始化第一列为 1 号插头，插头最小表示时保持 1 号不变。
 // 最终状态求插头编号为 1 的个数。
 // 关键剪枝：1)去掉没有1插头的状态；2)把没点燃且在轮廓线上没有连通插头的孤立插头置0，因为这种插头不影响最终结果。
 #include<stdio.h>
@@ -217,7 +217,10 @@ ANST CLDP()
 {
     int now = 0, nex = 1;
     dp[0].clear(); dp[1].clear();
-    dp[0][cn.Decode(0).Set(srow, 1).Encode()] = 1;
+    cn.Decode(0);
+    for(int i = 0; i < m; i ++)
+        cn.Set(i, 1);
+    dp[0][cn.Encode()] = 1;
     for(int i = 0; i < n; i ++)
     {
         LineShift(dp[now], dp[nex]);
@@ -243,10 +246,9 @@ ANST CLDP()
 int main()
 {
     n = 6, m = 9;   // 此题从左向右dp
-    while(scanf("%d", &srow) != EOF)
+    while(scanf("%s", dg[0]) != EOF)
     {
-        srow --;
-        for(int i = 0; i < m; i ++)
+        for(int i = 1; i < m; i ++)
             scanf("%s", dg[i]);
         printf("%d\n", CLDP());
     }
