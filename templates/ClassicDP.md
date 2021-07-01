@@ -46,7 +46,7 @@ Decode、GetLink、Set等操作可以串行，但要注意先后顺序，因为�
 
 ```cpp
 typedef long long CODET;
-typedef BigInt ANST;
+typedef long long ANST;
 int n, m;
 typedef std::unordered_map<CODET, ANST> DPMAP;  // 可换HashTable模板加速
 const CODET PLIMIT = 2;                         // 独立插头数量限制
@@ -127,6 +127,8 @@ CLNode& CLNode::Set(int ith, int _sr, int _cl)
     return *this;
 }
 CLNode cn;
+DPMAP dp[2];
+char dg[maxn][maxn]; // 底图
 
 inline void UD(DPMAP &mp, CODET k, const ANST &v)
 {  // 执行状态转移
