@@ -189,7 +189,7 @@ void PrintAns(CODET validcode)
             dg[i][j] = cn.Decode(nowcode).Cl(j) ? '#' : 'o';
             nowcode = pre[i][j][nowcode];
         }
-        nowcode = pre[i][0][nowcode];  // LineShift时候多记了一步
+        nowcode = pre[i][m][nowcode];  // LineShift时候多记了一步
     }
     for(int i = 0; i < n; i ++)
         puts(dg[i]);
@@ -202,7 +202,7 @@ ANST CLDP()
     dp[0][0] = 1;
     for(int i = 0; i < n; i ++)
     {
-        LineShift(dp[now], dp[nex], i, 0);
+        LineShift(dp[now], dp[nex], i, m);
         now ^= 1, nex ^= 1, dp[nex].clear();
         for(int j = 0; j < m; j ++)
         {
@@ -236,6 +236,9 @@ int main()
     int t;
     for(scanf("%d", &t); t --; )
     {
+        for(int i = 0; i < n; i ++)
+            for(int j = 0; j <= m; j ++)
+                pre[i][j].clear();
         scanf("%d%d", &n, &m);
         for(int i = 0; i < n; i ++)
             scanf("%s", dg[i]);
@@ -355,7 +358,7 @@ void PrintAns(CODET validcode)
             dg[i][j] = GSCL(nowcode, j) ? '#' : 'o';
             nowcode = pre[i][j][nowcode];
         }
-        nowcode = pre[i][0][nowcode];  // LineShift时候多记了一步
+        nowcode = pre[i][m][nowcode];  // LineShift时候多记了一步
     }
     for(int i = 0; i < n; i ++)
         puts(dg[i]);
@@ -368,7 +371,7 @@ ANST CLDP()
     dp[0][0] = 1;
     for(int i = 0; i < n; i ++)
     {
-        LineShift(dp[now], dp[nex], i, 0);
+        LineShift(dp[now], dp[nex], i, m);
         now ^= 1, nex ^= 1, dp[nex].clear();
         for(int j = 0; j < m; j ++)
         {
@@ -402,6 +405,9 @@ int main()
     int t;
     for(scanf("%d", &t); t --; )
     {
+        for(int i = 0; i < n; i ++)
+            for(int j = 0; j <= m; j ++)
+                pre[i][j].clear();
         scanf("%d%d", &n, &m);
         for(int i = 0; i < n; i ++)
             scanf("%s", dg[i]);

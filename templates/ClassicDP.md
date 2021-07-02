@@ -135,12 +135,12 @@ inline void UD(DPMAP &mp, CODET k, const ANST &v)
     if(!mp.count(k)) mp[k] = 0;
     mp[k] += v;
 }
-inline void LineShift(DPMAP &nowmp, DPMAP &nexmp)
+inline void LineShift(DPMAP &nowmp, DPMAP &nexmp, int i, int j)
 {
-    CODET CM = (1L << (m + 1) * PL) - 1;    // 编码掩码
-    CODET NM = PM << (m + 1) * PL;          // 插头个数/额外计数位 掩码。一些题用不到，不过保持此操作不妨碍结果
+    CODET CM = ((CODET)1 << (m + 1) * PL) - 1;      // 编码掩码
+    CODET NM = PM << (m + 1) * PL;                  // 插头个数/额外计数位 掩码。一些题用不到，不过保持此操作不妨碍结果
     for(auto it : nowmp)
-        UD(nexmp, it.first << PL & CM | it.first & NM, it.second);
+        UD(nexmp, it.first << PL & CM | it.first & NM, it.second, i, j, it.first);
 }
 inline bool Blocked(int i, int j) {return i < 0 || i >= n || j < 0 || j >= m;}
 inline bool End(int i, int j) {return i == n - 1 && j == m - 1;}
@@ -260,8 +260,7 @@ ANST CLDP()
     for(int i = 0; i < n; i ++)
     {
         LineShift(dp[now], dp[nex]);
-        now ^= 1, nex ^= 1;
-        dp[nex].clear();
+        now ^= 1, nex ^= 1, dp[nex].clear();
         for(int j = 0; j < m; j ++)
         {
             for(auto it : dp[now])
@@ -410,7 +409,7 @@ ANST CLDP()
     dp[0][0] = 1;
     for(int i = 0; i < n; i ++)
     {
-        LineShift(dp[now], dp[nex], i, 0);
+        LineShift(dp[now], dp[nex], i, m);
         now ^= 1, nex ^= 1, dp[nex].clear();
         for(int j = 0; j < m; j ++)
         {
