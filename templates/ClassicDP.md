@@ -115,9 +115,9 @@ CLNode& CLNode::Recode()
 }
 CLNode& CLNode::Merge(int ith, int jth)
 {
-    int ithsr = sr[ith];
+    int jthsr = sr[jth];
     for(int i = 0; i <= m; i ++)
-        if(sr[i] == ithsr) sr[i] = sr[jth];
+        if(sr[i] == jthsr) sr[i] = sr[ith];
     return *this;
 }
 CLNode& CLNode::Set(int ith, int _sr, int _cl)
