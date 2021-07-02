@@ -202,14 +202,6 @@ void DPTrans(int i, int j, CODET k, ANST v, DPMAP &nexmp)
     cn.Decode(k);
     tn.Decode(k);
     int lt = tn.Sr(j), up = tn.Sr(j + 1);
-    // if(i == 5 && j == 4 && v == 23)
-    // {
-    //     bool flag = false;
-    //     for(int i = 0; i < 3; i ++)
-    //         if(tn.Cl(i) > 0) flag = true;
-    //     if(!flag)
-    //         flag = false;
-    // }
     if(Blocked(i, j))
     {
         if(!lt && !up)
