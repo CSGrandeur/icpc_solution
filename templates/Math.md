@@ -40,7 +40,7 @@ typedef long long LL;
 LL cm[maxn][maxn];
 LL ComList()
 {
-    for(int i = 1; i < maxn; i ++)
+    for(int i = 0; i < maxn; i ++)
         for(int j = 0; j <= i; j ++)
         {
             if(j > i - j) cm[i][j] = cm[i][i - j];
