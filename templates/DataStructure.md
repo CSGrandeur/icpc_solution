@@ -25,7 +25,7 @@ struct HashTable
     void Init(){ht.clear(); std::fill(rcd.begin(), rcd.end(), -1);}
     void clear() {Init();}
     int size() {return ht.size();}
-    int GetHash(MPTP_K x) {return (x ^ hashmod) % hashmod;}
+    int GetHash(MPTP_K x) {return (abs(x) ^ hashmod) % hashmod;}
     int Find(MPTP_K x)
     {
         for(int i = rcd[GetHash(x)]; i != -1; i = ht[i].nex)

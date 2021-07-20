@@ -994,54 +994,54 @@ struct Point3
         return Point3(y * p.z - p.y * z,
                       z * p.x - x * p.z,
                       x * p.y - y * p.x);
-}
+    }
 
-double dot(Point3 p){return x * p.x + y * p.y + z * p.z;}
+    double dot(Point3 p){return x * p.x + y * p.y + z * p.z;}
 
-Point3 operator-(const Point3 &p)const
-{return Point3(x - p.x, y - p.y, z - p.z);}
+    Point3 operator-(const Point3 &p)const
+    {return Point3(x - p.x, y - p.y, z - p.z);}
 
-Point3 operator-()const
-{return Point3(-x, -y, -z);}
+    Point3 operator-()const
+    {return Point3(-x, -y, -z);}
 
-Point3 operator+(const Point3 &p)const
-{return Point3(x + p.x, y + p.y, z + p.z);}
+    Point3 operator+(const Point3 &p)const
+    {return Point3(x + p.x, y + p.y, z + p.z);}
 
-Point3 operator*(const double b)const
-{return Point3(x * b, y * b, z * b);}
+    Point3 operator*(const double b)const
+    {return Point3(x * b, y * b, z * b);}
 
-bool operator==(const Point3 &p)const
-{return !dcmp(x - p.x) && !dcmp(y - p.y) && !dcmp(z - p.z);}
+    bool operator==(const Point3 &p)const
+    {return !dcmp(x - p.x) && !dcmp(y - p.y) && !dcmp(z - p.z);}
 
-bool operator!=(const Point3 &p)const
-{return !(*this == p);}
+    bool operator!=(const Point3 &p)const
+    {return !(*this == p);}
 
-    bool operator<(const Point3 &p)const
-    {
-        if(!dcmp(x - p.x))
+        bool operator<(const Point3 &p)const
         {
-            if(!dcmp(y - p.y))
-                return dcmp(z - p.z) < 0;
-            return dcmp(y - p.y) < 0;
-        }
-        return dcmp(x - p.x) < 0;
-}
+            if(!dcmp(x - p.x))
+            {
+                if(!dcmp(y - p.y))
+                    return dcmp(z - p.z) < 0;
+                return dcmp(y - p.y) < 0;
+            }
+            return dcmp(x - p.x) < 0;
+    }
 
     bool operator>(const Point3 &p)const{return p < *this;}
     bool operator>=(const Point3 &p)const{return !(*this < p);}
     bool operator<=(const Point3 &p)const{return !(*this > p);}
 
     // 法向量
-    Point3 fxl(Point3 b, Point3 c){return (b - *this).cross(c - b);}
+    Point3 nv(Point3 b, Point3 c){return (b - *this).cross(c - b);}
     // 两点距离
     double Dis(Point3 b){return sqrt((*this - b).dot(*this - b));}
     // 向量绝对长度
     double vlen(){return sqrt(dot(*this));}
 
     bool PinLine(Point3 b, Point3 c) //三点共线
-    {return fxl(b, c).vlen() < eps;}
+    {return nv(b, c).vlen() < eps;}
     bool PonPlane(Point3 b, Point3 c, Point3 d) //四点共面
-    {return !dcmp(fxl(b, c).dot(d - *this));}
+    {return !dcmp(nv(b, c).dot(d - *this));}
     bool PonSeg(Point3 b, Point3 c) //点在线段上，包括端点
     {
         return !dcmp((*this - b).cross(*this - c).vlen()) &&
@@ -1052,7 +1052,7 @@ bool operator!=(const Point3 &p)const
     double PtoLine(Point3 b, Point3 c) //点到直线距离
     {return (*this - b).cross(c - b).vlen() / b.Dis(c);}
     double PtoPlane(Point3 b, Point3 c, Point3 d) //点到平面距离
-    {return fabs(b.fxl(c, d).dot(*this - b)) / b.fxl(c, d).vlen();}
+    {return fabs(b.nv(c, d).dot(*this - b)) / b.nv(c, d).vlen();}
 };
 
 ```
@@ -1079,18 +1079,22 @@ int be[maxn][maxn], m;
 struct Plane
 {
     int a, b, c, del;
-    Point3 fxl; //法向量
+    Point3 nv; //法向量
     Plane(){}
     Plane(int a_, int b_, int c_)
     {
         a = a_, b = b_, c = c_, del = 0;
-        fxl = p[a].fxl(p[b], p[c]);
+        nv = p[a].nv(p[b], p[c]);
+    }
+    Point3 PcrossPlane(Point3 a, Point3 b)
+    {
+        return a + (b - a) * (PtoPlane(a) / (PtoPlane(a) + PtoPlane(b)));
     }
 }f[maxn * 100];
 
 bool PisOut(int a, int b)  //p[a]在f[b]外
 {
-    double s = f[b].fxl.dot(p[a] - p[f[b].a]);
+    double s = f[b].nv.dot(p[a] - p[f[b].a]);
     return s < -eps;
 }
 void AddF(int a, int b, int c) //增加面
