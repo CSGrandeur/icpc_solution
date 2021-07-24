@@ -74,10 +74,10 @@ double KDTree::_Variance(int l, int r, int dm)
     if(l >= r) return 0;
     double sum = 0, mean, vsum = 0;
     for(int i = l; i < r; i ++)
-        sum += ax[dm][idx[i]];
+        sum += ax[idx[i]][dm];
     mean = sum / (r - l);
     for(int i = l; i < r; i ++)
-        vsum += Sqr(ax[dm][idx[i]] - mean);
+        vsum += Sqr(ax[idx[i]][dm] - mean);
     return vsum / (r - l);
 }
 int KDTree::Build(int l, int r)
