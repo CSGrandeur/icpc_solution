@@ -1,20 +1,32 @@
 // difficulty: 4
-// P4148 简单题
-// 题目标题为“简单题”，强制在线动态统计平面区域权值和，限制可用内存20MB
-// 尝试实现一个封装较好动态内存的KD-Tree模板，几经调试性能还是堪忧，开O2可过此题
-// KD树上统计思路类似线段树，维护子树权值和，区域覆盖则返回权值，否则向下递归
+// [SDOI2010]捉迷藏
+// 曼哈顿最远距离用去绝对值方法，最近距离用KD树，两个模板测试
+// 模板用stl容器，需要开O2
 #include<stdio.h>
-#include<string.h>
 #include<stdlib.h>
+#include<string.h>
 #include<math.h>
 #include<algorithm>
 #include<vector>
-#include<queue>
 #include<utility>
+#include<math.h>
+#include<queue>
 using namespace std;
+// KD-Tree
+typedef pair<int, int> pii;
+typedef priority_queue<pii> pqueue;
 typedef int KD_CO;
 typedef int KD_V;
 double Sqr(double x){return x * x;}
+double Dis(vector<KD_CO> &a, vector<KD_CO> &b)
+{
+    int ret = 0;
+    for(int i = 0; i < a.size(); i ++)
+        ret += abs(a[i] - b[i]);
+    return ret;
+}
+typedef int KD_CO;
+typedef int KD_V;
 struct KDTree
 {
     vector<vector<KD_CO> > ax, cl, ch;
@@ -38,8 +50,8 @@ struct KDTree
     void Insert(KD_CO x_, KD_CO y_, KD_V v_=0);
     void Insert(vector<KD_CO> &co, KD_V v_=0);
     void _Insert(int &now, int last);
-    KD_V QuerySum(vector<KD_CO> &cs, vector<KD_CO> &ce){return _QuerySum(root, cs, ce);}
-    KD_V _QuerySum(int now, vector<KD_CO> &cs, vector<KD_CO> &ce);
+    int SearchK(vector<KD_CO> &p, int k, pqueue &q){return _SearchK(root, p, k, q);}
+    int _SearchK(int now, vector<KD_CO> &p, int k, pqueue &q);
 };
 void KDTree::Init()
 {
@@ -160,95 +172,83 @@ void KDTree::_Insert(int &now, int last)
     Maintain(now);
     CheckRebuild(now);
 }
-KD_V KDTree::_QuerySum(int now, vector<KD_CO> &cs, vector<KD_CO> &ce)
+int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
 {
     if(now == -1) return 0;
-    int i;
-    for(i = 0; i < dimN; i ++)
-        if(cs[i] > ch[now][i] || ce[i] <= cl[now][i]) return 0;
-    for(i = 0; i < dimN && cs[i] <= cl[now][i] && ce[i] > ch[now][i]; i ++);
-    if(i == dimN) return sum[now];
-    KD_V ret = 0;
-    for(i = 0; i < dimN && cs[i] <= ax[now][i] && ce[i] > ax[now][i]; i ++);
-    if(i == dimN) ret += v[now];
-    return _QuerySum(Gid(lc, now), cs, ce) + _QuerySum(Gid(rc, now), cs, ce) + ret;
-}
-#ifdef CPC
-void DataGen()
-{
-    int n, t, m, p, v, lastans;
-    freopen("test.in", "wb", stdout);
-    n = 500000;
-    t = 200000;
-    printf("%d\n", n);
-    lastans = 0;
-    KDTree kt;
-    while(t --)
+    bool searchL = p[dm[now]] <= ax[now][dm[now]];
+    if(searchL) _SearchK(Gid(lc, now), p, k, q);
+    else _SearchK(Gid(rc, now), p, k, q);
+    double dis = Dis(p, ax[now]);
+    if(q.size() < k || q.top().first > dis)
     {
-        if(rand() & 1)
-        {
-            int x = rand() % n + 1, y = rand() % n + 1, v = rand() % 100;
-            
-            kt.Insert(x, y, v);
-            x ^= lastans;
-            y ^= lastans;
-            v ^= lastans;
-            printf("1 %d %d %d\n", x, y, v);
-        }
-        else
-        {
-            int x1 = rand() % n + 1, y1 = rand() % n + 1;
-            int x2 = rand() % n + 1, y2 = rand() % n + 1;
-            if(x1 > x2) swap(x1, x2);
-            if(y1 > y2) swap(y1, y2);
-            vector<int> tmps = {x1, y1}, tmpe = {x2 + 1, y2 + 1};
-            x1 ^= lastans;
-            y1 ^= lastans;
-            x2 ^= lastans;
-            y2 ^= lastans;
-            lastans = kt.QuerySum(tmps, tmpe);
-            printf("2 %d %d %d %d\n", x1, y1, x2, y2);
-        }
+        q.push(pii(dis, now));
+        while(q.size() > k) q.pop();
     }
-    printf("3\n");
-}
-#endif
-int main()
-{
-    #ifdef CPC
-    DataGen();
-    freopen("test.in", "rb", stdin);
-    freopen("test.out", "wb", stdout);
-    #endif
-    int n, m, p, v, lastans;
-    vector<int> s(2), e(2);
-    KDTree kt;
-    while(scanf("%d", &n) != EOF)
+    if(q.size() < k || q.top().first > abs(ax[now][dm[now]] - p[dm[now]]))
     {
-        kt.Init();
-        lastans = 0;
-        while(scanf("%d", &p) && p != 3)
-        {
-            if(p == 1)
-            {
-                scanf("%d%d%d", &s[0], &s[1], &v);
-                s[0] ^= lastans;
-                s[1] ^= lastans;
-                v    ^= lastans;
-                kt.Insert(s, v);
-            }
-            else
-            {
-                scanf("%d%d%d%d", &s[0], &s[1], &e[0], &e[1]);
-                s[0] ^= lastans;
-                s[1] ^= lastans;
-                e[0] ^= lastans;
-                e[1] ^= lastans;
-                e[0] ++;
-                e[1] ++;
-                printf("%d\n", lastans = kt.QuerySum(s, e));
-            }
-        }
+        if(searchL) _SearchK(Gid(rc, now), p, k, q);
+        else _SearchK(Gid(lc, now), p, k, q);
     }
     return 0;
+}
+// Manhattan Distance 
+typedef int COTYPE;
+typedef pair<COTYPE, int> pii;
+const int maxn = 1e5 + 10;
+int n, m = 2;
+vector<vector<COTYPE> > p;
+vector<vector<pii> > mrcd;
+inline COTYPE GetVal(vector<COTYPE> &sp, int status)
+{
+    COTYPE tmp = 0;
+    for(int k = 0; k < sp.size(); k ++, status >>= 1)
+        tmp += (status & 1 ? 1 : -1) * sp[k];
+    return tmp;
+}
+void ManDisPre(vector<vector<COTYPE> > &p)
+{
+    int m = p.empty() ? 0 : p[0].size();
+    mrcd.resize(1 << m);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        mrcd[j].resize(n);
+    for(int i = 0; i < n; i ++)
+        for(int j = (1 << m) - 1; j >= 0; j --)
+            mrcd[j][i] = pii(GetVal(p[i], j), i);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        sort(mrcd[j].begin(), mrcd[j].end());
+}
+COTYPE ManDis(int spid, vector<vector<COTYPE> > &p)
+{
+    int n = p.size(), m = p.empty() ? 0 : p[0].size();
+    COTYPE ret = 0;
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        ret = max(ret, GetVal(p[spid], j) + mrcd[j ^ (1 << m) - 1][n - 1].first);
+    return ret;
+}
+int main()
+{
+    while(scanf("%d", &n) != EOF)
+    {
+        p.resize(n);
+        KDTree kt;
+        for(int i = 0; i < n; i ++)
+        {
+            p[i].resize(m);
+            for(int j = 0; j < m; j ++)
+                scanf("%d", &p[i][j]);
+            kt.Insert(p[i]);
+        }
+        COTYPE ans = 0x3f3f3f3f;
+        ManDisPre(p);
+        for(int i = 0; i < n; i ++)
+        {
+            int maxDis = ManDis(i, p);
+            pqueue q;
+            kt.SearchK(p[i], 2, q);
+            int minDis, tmp;
+            while(!q.empty() && q.top().first) minDis = q.top().first, q.pop();
+            ans = min(maxDis - minDis, ans);
+        }
+        printf("%d\n", ans);
+    }
 }

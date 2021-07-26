@@ -753,7 +753,6 @@ void KDTree::Insert(vector<KD_CO> &co, KD_V v_)
     _Add(co, v_);
     _Insert(root, v.size() - 1);
 }
-int xxxx = 0;
 void KDTree::_Insert(int &now, int last)
 {
     if(now == -1)
@@ -847,7 +846,7 @@ int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
 #include<vector>
 #include<utility>
 using namespace std;
-typedef double COTYPE;
+typedef int COTYPE;
 typedef pair<COTYPE, int> pii;
 vector<vector<COTYPE> > p;
 vector<vector<pii> > mrcd;
