@@ -1,0 +1,65 @@
+// difficulty: 3
+// Requirements
+// 曼哈顿最远距离。设维度为 m（本题维度是5），两点曼哈顿距离拆绝对值后有 2^m 种可能性。
+// 拆绝对值后的表达式可把同一点的值组合，比如 x1 +x2 +x3 +x4 +x5 + (-y1 -y2 -y3 -y4 -y5)
+// 如果用01串表示每个维度的正负，则点x的串sx与y的串sy一定相反，即 (sx ^ sy) == (1 << m) - 1
+// 预处理每个点的 2^m 的可能性并排序，然后枚举每个点的 2^m 个可能性，找互补01状态串的所有点的最大值，更新答案。
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<math.h>
+#include<algorithm>
+#include<vector>
+#include<utility>
+using namespace std;
+typedef double COTYPE;
+typedef pair<COTYPE, int> pii;
+const int maxn = 1e5 + 10;
+int n, m = 5;
+vector<vector<COTYPE> > p;
+vector<vector<pii> > mrcd;
+inline COTYPE GetVal(vector<COTYPE> &sp, int status)
+{
+    COTYPE tmp = 0;
+    for(int k = 0; k < sp.size(); k ++, status >>= 1)
+        tmp += (status & 1 ? 1 : -1) * sp[k];
+    return tmp;
+}
+void ManDisPre(vector<vector<COTYPE> > &p)
+{
+    int m = p.empty() ? 0 : p[0].size();
+    mrcd.resize(1 << m);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        mrcd[j].resize(n);
+    for(int i = 0; i < n; i ++)
+        for(int j = (1 << m) - 1; j >= 0; j --)
+            mrcd[j][i] = pii(GetVal(p[i], j), i);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        sort(mrcd[j].begin(), mrcd[j].end());
+}
+COTYPE ManDis(int spid, vector<vector<COTYPE> > &p)
+{
+    int n = p.size(), m = p.empty() ? 0 : p[0].size();
+    COTYPE ret = 0;
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        ret = max(ret, GetVal(p[spid], j) + mrcd[j ^ (1 << m) - 1][n - 1].first);
+    return ret;
+}
+int main()
+{
+    while(scanf("%d", &n) != EOF)
+    {
+        p.resize(n);
+        for(int i = 0; i < n; i ++)
+        {
+            p[i].resize(m);
+            for(int j = 0; j < m; j ++)
+                scanf("%lf", &p[i][j]);
+        }
+        COTYPE ans = 0;
+        ManDisPre(p);
+        for(int i = 0; i < n; i ++)
+            ans = max(ans, ManDis(i, p));
+        printf("%.2f\n", ans);
+    }
+}

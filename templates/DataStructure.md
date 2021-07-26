@@ -837,3 +837,45 @@ int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
     return 0;
 }
 ```
+
+## 最远曼哈顿距离
+
+任意维度个数
+
+```cpp
+#include<algorithm>
+#include<vector>
+#include<utility>
+using namespace std;
+typedef double COTYPE;
+typedef pair<COTYPE, int> pii;
+vector<vector<COTYPE> > p;
+vector<vector<pii> > mrcd;
+inline COTYPE GetVal(vector<COTYPE> &sp, int status)
+{
+    COTYPE tmp = 0;
+    for(int k = 0; k < sp.size(); k ++, status >>= 1)
+        tmp += (status & 1 ? 1 : -1) * sp[k];
+    return tmp;
+}
+void ManDisPre(vector<vector<COTYPE> > &p)
+{
+    int m = p.empty() ? 0 : p[0].size();
+    mrcd.resize(1 << m);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        mrcd[j].resize(n);
+    for(int i = 0; i < n; i ++)
+        for(int j = (1 << m) - 1; j >= 0; j --)
+            mrcd[j][i] = pii(GetVal(p[i], j), i);
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        sort(mrcd[j].begin(), mrcd[j].end());
+}
+COTYPE ManDis(int spid, vector<vector<COTYPE> > &p)
+{
+    int n = p.size(), m = p.empty() ? 0 : p[0].size();
+    COTYPE ret = 0;
+    for(int j = (1 << m) - 1; j >= 0; j --)
+        ret = max(ret, GetVal(p[spid], j) + mrcd[j ^ (1 << m) - 1][n - 1].first);
+    return ret;
+}
+```
