@@ -643,9 +643,9 @@ struct KDTree
     int Build(int l, int r);
     void CheckRebuild(int &now);
     void Maintain(int now);
-    void Insert(KD_CO x_, KD_CO y_, KD_V v_=0);
-    void Insert(vector<KD_CO> &co, KD_V v_=0);
-    void _Insert(int &now, int last);
+    int Insert(KD_CO x_, KD_CO y_, KD_V v_=0);
+    int Insert(vector<KD_CO> &co, KD_V v_=0);
+    int _Insert(int &now, int last);
 };
 void KDTree::Init()
 {
@@ -742,29 +742,31 @@ void KDTree::CheckRebuild(int &now)
     InitIdx(now);
     now = Build(0, idx.size());
 }
-void KDTree::Insert(KD_CO x_, KD_CO y_, KD_V v_)
+int KDTree::Insert(KD_CO x_, KD_CO y_, KD_V v_)
 {
     vector<int> tmp = {x_, y_};
     _Add(tmp, v_);
-    _Insert(root, v.size() - 1);
+    return _Insert(root, v.size() - 1);
 }
-void KDTree::Insert(vector<KD_CO> &co, KD_V v_)
+int KDTree::Insert(vector<KD_CO> &co, KD_V v_)
 {
     _Add(co, v_);
-    _Insert(root, v.size() - 1);
+    return _Insert(root, v.size() - 1);
 }
-void KDTree::_Insert(int &now, int last)
+int KDTree::_Insert(int &now, int last)
 {
     if(now == -1)
     {
         now = last;
         Maintain(now);
-        return;
+        return 0;
     }
-    if(ax[last][dm[now]] <= ax[now][dm[now]]) _Insert(lc[now], last);
-    else _Insert(rc[now], last);
+    int depth;
+    if(ax[last][dm[now]] <= ax[now][dm[now]]) depth = _Insert(lc[now], last);
+    else depth = _Insert(rc[now], last);
     Maintain(now);
     CheckRebuild(now);
+    return depth + 1;
 }
 ```
 
