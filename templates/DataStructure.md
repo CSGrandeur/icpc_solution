@@ -795,7 +795,7 @@ KD_V KDTree::_QuerySum(int now, vector<KD_CO> &cs, vector<KD_CO> &ce)
 }
 ```
 
-### KD树求最近点
+### KD树 K 近点
 
 ```cpp
 #include<queue>
@@ -839,7 +839,41 @@ int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
 }
 ```
 
-### KD树最近曼哈顿距离点
+### KD树 K 远点
+
+```cpp
+typedef double DIS_V;
+DIS_V RecDis(vector<KD_CO> &a, vector<KD_CO> &cl, vector<KD_CO> &ch)
+{
+    DIS_V ret = 0;
+    for(int i = 0; i < a.size(); i ++)
+        ret += max(Sqr(a[i] - cl[i]), Sqr(a[i] - ch[i]));
+    return sqrt(ret);
+}
+int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
+{
+    if(now == -1) return 0;
+    DIS_V lrecdis = Gid(lc, now) == -1 ? 0 : RecDis(p, cl[lc[now]], ch[lc[now]]);
+    DIS_V rrecdis = Gid(rc, now) == -1 ? 0 : RecDis(p, cl[rc[now]], ch[rc[now]]);
+    DIS_V &firstdis = lrecdis > rrecdis ? lrecdis : rrecdis;
+    DIS_V &seconddis = lrecdis > rrecdis ? rrecdis : lrecdis;
+    vector<int> &firstdir = lrecdis > rrecdis ? lc : rc;
+    vector<int> &seconddir = lrecdis > rrecdis ? rc : lc;
+    if(q.size() < k || abs(q.top().first) <= firstdis)
+        _SearchK(Gid(firstdir, now), p, k, q);
+    DIS_V dis = Dis(p, ax[now]);
+    if(q.size() < k || abs(q.top().first) <= dis)
+    {
+        q.push(pii(-dis, now));  // 距离小、编号大的放堆顶，距离存负数省的写operator
+        while(q.size() > k) q.pop();
+    }
+    if(q.size() < k || abs(q.top().first) <= seconddis)
+        _SearchK(Gid(seconddir, now), p, k, q);
+    return 0;
+}
+```
+
+### KD树 K 近曼哈顿距离点
 
 ```cpp
 typedef pair<int, int> pii;
