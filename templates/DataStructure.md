@@ -839,6 +839,53 @@ int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
 }
 ```
 
+### KD树最近曼哈顿距离点
+
+```cpp
+typedef pair<int, int> pii;
+typedef priority_queue<pii> pqueue;
+typedef int KD_CO;
+typedef int KD_V;
+double Sqr(double x){return x * x;}
+struct KDTree
+{
+    // 求曼哈顿距离最近 k 个点
+    int SearchK(vector<KD_CO> &p, int k, pqueue &q){return _SearchK(root, p, k, q);}
+    int _SearchK(int now, vector<KD_CO> &p, int k, pqueue &q);
+};
+int Dis(vector<KD_CO> &a, vector<KD_CO> &b)
+{
+    int ret = 0;
+    for(int i = 0; i < a.size(); i ++)
+        ret += abs(a[i] - b[i]);
+    return ret;
+}
+int RecDis(vector<KD_CO> &a, vector<KD_CO> &cl, vector<KD_CO> &ch)
+{
+    int ret = 0;
+    for(int i = 0; i < a.size(); i ++)
+        ret += a[i] < cl[i] ? cl[i] - a[i] : (a[i] < ch[i] ? 0 : a[i] - ch[i]);
+    return ret;
+}
+int KDTree::_SearchK(int now, vector<KD_CO> &p, int k, pqueue &q)
+{
+    if(now == -1) return 0;
+    bool searchL = p[dm[now]] <= ax[now][dm[now]];
+    if(searchL) _SearchK(Gid(lc, now), p, k, q);
+    else _SearchK(Gid(rc, now), p, k, q);
+    int dis = Dis(p, ax[now]);
+    if(q.size() < k || q.top().first > dis)
+    {
+        q.push(pii(dis, now));
+        while(q.size() > k) q.pop();
+    }
+    vector<int> &lrc = searchL ? rc : lc;
+    if(q.size() < k || Gid(lrc, now) != -1 && q.top().first > RecDis(p, cl[lrc[now]], ch[lrc[now]]))
+        _SearchK(Gid(lrc, now), p, k, q);
+    return 0;
+}
+```
+
 ## 最远曼哈顿距离
 
 任意维度个数
