@@ -106,19 +106,66 @@ DA(r, sa, n + 1, 128);
 // DC3(r, sa, n + 1, 128);
 ```
 
+`height[i]` 表示rank为 i 与 i-1 两个后缀的最长公共前缀长度 `lcp(i, i - 1)`
+
 ### 倍增（DA）
 
-罗穗骞 模板，O(nlogn)，常数相对较小
+罗穗骞 DA 模板，O(nlogn)，常数相对较小
 
 
 ```cpp
-int wa[maxn], wb[maxn], wv[maxn], ws[maxn];
-int sa[maxn];
-inline int DACMP(int *r, int a, int b, int l)
-{return r[a] == r[b] && r[a + l] == r[b + l];}
-void DA(int r[], int sa[], int n, int m)
+#include<vector>
+#include<algorithm>
+const int maxn = 2e5 + 10;
+struct SA
 {
-    int i, j, p, *x = wa, *y = wb, *t;
+    std::vector<int> wa, wb, wv, ws, sa, rk, height, r;
+    int len, m;
+    SA(){}
+    SA(int maxn_){_Init(maxn_);}
+    void _Init(int maxn_, bool dc3flag=false);
+    inline int _DACMP(std::vector<int> &r, int a, int b, int l)
+    {return r[a] == r[b] && r[a + l] == r[b + l];}
+    template<typename STR_IN>
+    void _GetR(STR_IN buf[], bool dc3flag=false)
+    {
+        _Init(std::max(len, m) + 1, dc3flag);
+        for(int i = 0; i < len; i ++)
+            r[i] = buf[i];
+        r[len] = 0;
+    }
+    template<typename STR_IN>
+    void CalSA(STR_IN buf[], int len_, int m_=128)
+    {
+        len = len_, m = m_;
+        _GetR(buf);
+        DA(len + 1, m);
+    }
+    // Cal rank or height Only valid when after GetSA(...)
+    void CalRank();
+    void CalHeight();
+    void DA(int len, int m);
+};
+void SA::_Init(int maxn_)
+{
+    {
+        if(r.size() <= maxn_)
+        {
+            r.resize(maxn_ + 1);
+            wa.resize(maxn_ + 1);
+            wb.resize(maxn_ + 1);
+            wv.resize(maxn_ + 1);
+            ws.resize(maxn_ + 1);
+            sa.resize(maxn_ + 1);
+            rk.resize(maxn_ + 1);
+            height.resize(maxn_ + 1);
+        }
+    }
+}
+void SA::DA(int n, int m)
+{
+    int i, j, p;
+    std::vector<int> &x = wa, &y = wb;
     for(i = 0; i < m; i ++) ws[i] = 0;
     for(i = 0; i < n; i ++) ws[x[i] = r[i]] ++;
     for(i = 1; i < m; i ++) ws[i] += ws[i - 1];
@@ -132,29 +179,53 @@ void DA(int r[], int sa[], int n, int m)
         for(i = 0; i < n; i ++) ws[wv[i]] ++;
         for(i = 1; i < m; i ++) ws[i] += ws[i - 1];
         for(i = n - 1; i >= 0; i --) sa[-- ws[wv[i]]] = y[i];
-        for(t = x, x = y, y = t, p = 1, x[sa[0]] = 0, i = 1; i < n; i ++)
-            x[sa[i]] = DACMP(y, sa[i - 1], sa[i], j) ? p - 1 : p ++;
+        for(std::swap(x, y), p = 1, x[sa[0]] = 0, i = 1; i < n; i ++)
+            x[sa[i]] = _DACMP(y, sa[i - 1], sa[i], j) ? p - 1 : p ++;
     }
+}
+void SA::CalRank()
+{
+    // the same as the first step in CalHeight()
+    for(int i = 1; i <= len; i ++) rk[sa[i]] = i;
+}
+void SA::CalHeight()
+{
+    int i, j, k = 0;
+    for(i = 1; i <= len; i ++) rk[sa[i]] = i;
+    for(i = 0; i < len; height[rk[i ++]] = k)
+        for(k -= !!k, j = sa[rk[i] - 1]; r[i + k] == r[j + k]; k ++);
 }
 ```
 
 ### DC3
 
-罗穗骞 模板，O(n)，常数相对DA较大
+罗穗骞 DC3 模板，O(n)，常数相对 DA 较大
 
 ```cpp
-const int maxn = 2e5 + 10;
-int wa[maxn], wb[maxn], wv[maxn], ws[maxn];
-int sa[maxn * 3], r[maxn * 3];  // r 为原始串关键值
-inline int F(int x, int tb) {return x / 3 + (x % 3 == 1 ? 0 : tb);}
-inline int G(int x, int tb) {return x < tb ? x * 3 + 1 : (x - tb) * 3 + 2;}
-inline int C0(int r[], int a, int b){return !memcmp(r + a, r + b, sizeof(r[0]) * 3);}
-inline int C12(int k, int r[], int a, int b)
+// Differences from DA version
+struct SA
 {
-    if(k == 2) return r[a] < r[b] || r[a] == r[b] && C12(1, r, a + 1, b + 1);
-    else return r[a] < r[b] || r[a] == r[b] && wv[a + 1] < wv[b + 1];
+    // ...
+    // DC3
+    template<typename STR_IN>
+    void CalSA(STR_IN buf[], int len_, int m_=128)
+    {
+        len = len_, m = m_;
+        _GetR(buf, true);        
+        DC3(r.data(), sa.data(), len + 1, m);
+    }
+    inline int F(int x, int tb) {return x / 3 + (x % 3 == 1 ? 0 : tb);}
+    inline int G(int x, int tb) {return x < tb ? x * 3 + 1 : (x - tb) * 3 + 2;}
+    inline int C0(int r[], int a, int b){return !memcmp(r + a, r + b, sizeof(r[0]) * 3);}
+    inline int C12(int k, int r[], int a, int b)
+    {
+        if(k == 2) return r[a] < r[b] || r[a] == r[b] && C12(1, r, a + 1, b + 1);
+        else return r[a] < r[b] || r[a] == r[b] && wv[a + 1] < wv[b + 1];
+    }
+    void DC3Sort(int r[], std::vector<int> &a, std::vector<int> &b, int n, int m);
+    void DC3(int r[], int sa[], int n, int m);
 }
-void DC3Sort(int r[], int a[], int b[], int n, int m)
+void SA::DC3Sort(int r[], std::vector<int> &a, std::vector<int> &b, int n, int m)
 {
     for(int i = 0; i < n; i ++) wv[i] = r[a[i]];
     for(int i = 0; i < m; i ++) ws[i] = 0;
@@ -162,7 +233,7 @@ void DC3Sort(int r[], int a[], int b[], int n, int m)
     for(int i = 1; i < m; i ++) ws[i] += ws[i - 1];
     for(int i = n - 1; i >= 0; i --) b[-- ws[wv[i]]] = a[i];
 }
-void DC3(int r[], int sa[], int n, int m)
+void SA::DC3(int r[], int sa[], int n, int m)
 {
     int i, j, *rn = r + n, *san = sa + n, ta = 0, tb = (n + 1) / 3, tbc = 0, p;
     r[n] = r[n + 1] = 0;
@@ -193,21 +264,6 @@ int rk[maxn];
 void GetRank()
 {
     for(int i = 1; i <= n; i ++) rk[sa[i]] = i;
-}
-```
-
-### 相邻rank后缀最长公共前缀
-
-`lcp[i]` 表示rank为 i 与 i-1 两个后缀的最长公共前缀长度
-
-```cpp
-int lcp[maxn];
-void CalLcp(int r[], int sa[], int n)
-{
-    int i, j, k = 0;
-    for(i = 1; i <= n; i ++) rk[sa[i]] = i;
-    for(i = 0; i < n; lcp[rk[i ++]] = k)
-        for(k -= !!k, j = sa[rk[i] - 1]; r[i + k] == r[j + k]; k ++);
 }
 ```
 
