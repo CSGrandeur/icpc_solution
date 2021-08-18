@@ -1042,10 +1042,10 @@ struct Point3
     {return nv(b, c).vlen() < eps;}
     bool PonPlane(Point3 b, Point3 c, Point3 d) //四点共面
     {return !dcmp(nv(b, c).dot(d - *this));}
-    bool PonSeg(Point3 b, Point3 c) //点在线段上，包括端点
+    bool PonSeg(Point3 b, Point3 c) //点在线段上，包括端点。谨慎使用！计算交点后精度可能不够
     {
         return !dcmp((*this - b).cross(*this - c).vlen()) &&
-               (*this - b).dot(*this - c) <= 0;
+               dcmp((*this - b).dot(*this - c)) <= 0;
     }
     bool PinSeg(Point3 b, Point3 c) //点在线段上，不包括端点
     {return PonSeg(b, c) && *this != b && *this != c;}
