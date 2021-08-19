@@ -273,43 +273,58 @@ void GetRank()
 结点数要开字符串长度二倍
 
 ```cpp
-struct SamNode
+const int maxn = 5e5 + 10;
+struct SAM
 {
-    int len, link;
-    std::unordered_map<int, int> nex;
-    void Init(int l_ = 0){len = l_; link = -1; nex.clear();}
-};
-SamNode smn[maxn];
-int stp, slast;
-void SamInit()
-{
-    stp = slast = 0;
-    smn[stp ++].Init();
-}
-void SamAdd(int c)
-{
-    int cur = stp ++, p = slast;
-    smn[cur].Init(smn[slast].len + 1);
-    slast = cur;
-    cnt[cur] = 1;
-    for(; p != -1 && !smn[p].nex.count(c); p = smn[p].link)
-        smn[p].nex[c] = cur;
-    if(p == -1) smn[cur].link = 0;
-    else
+    struct SamNode
     {
-        int q = smn[p].nex[c];
-        if(smn[p].len + 1 == smn[q].len) smn[cur].link = q;
+        int len, link;
+        std::unordered_map<int, int> nex;
+        void Init(int l_ = 0){len = l_; link = -1; nex.clear();}
+        SamNode(){Init();}
+        SamNode(int l_){Init(l_);}
+    };
+    std::vector<SamNode> smn;
+    int stp, slast;
+    SAM(){Init();}
+    SAM(int maxn_){smn.resize(maxn_);}
+    void Init(){stp = slast = 0; AddNode();}
+    void AddNode(int l_ = 0)
+    {
+        if(stp >= smn.size()) smn.push_back(SamNode(l_));
+        else smn[stp].Init(l_);
+        stp ++;
+    }
+    void Add(int c)
+    {
+        int cur = stp, p = slast;
+        AddNode(smn[slast].len + 1);
+        slast = cur;
+        for(; p != -1 && !smn[p].nex.count(c); p = smn[p].link)
+            smn[p].nex[c] = cur;
+        if(p == -1) smn[cur].link = 0;
         else
         {
-            int clone = stp ++;
-            cnt[clone] = 0;
-            smn[clone].len = smn[p].len + 1;
-            smn[clone].nex = smn[q].nex;
-            smn[clone].link = smn[q].link;
-            for(; p != -1 && smn[p].nex[c] == q; p = smn[p].link)
-                smn[p].nex[c] = clone;
-            smn[q].link = smn[cur].link = clone;
+            int q = smn[p].nex[c];
+            if(smn[p].len + 1 == smn[q].len) smn[cur].link = q;
+            else
+            {
+                int clone = stp;
+                AddNode();
+                smn[clone].len = smn[p].len + 1;
+                smn[clone].nex = smn[q].nex;
+                smn[clone].link = smn[q].link;
+                for(; p != -1 && smn[p].nex[c] == q; p = smn[p].link)
+                    smn[p].nex[c] = clone;
+                smn[q].link = smn[cur].link = clone;
+            }
         }
     }
-}
+    void Build(char buf[])
+    {
+        Init();
+        for(int i = 0; buf[i]; i ++)
+            Add(buf[i]);
+    }
+};
 ```
