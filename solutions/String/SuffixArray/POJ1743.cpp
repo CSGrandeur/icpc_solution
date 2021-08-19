@@ -1,11 +1,9 @@
 // difficulty: 4
-// Substrings
-// 后缀数组入门1：公共子串问题
-// 此题为经典入门题，不过后缀数组门槛本不低，且要考虑一些坑点，有debug难度，故定 4星难度
-// 和两个字符串的最长子串思路一样，所有字符串拼起来，中间由各不相同且不在字符串出现的符号填充
-// r 数组是int型的，所以填充符可以大于 128 。
-// 二分枚举公共子串长度 mid，通过打标记（`who`数组与`visRecord`数组），判断 height 数组中连续不小于 mid 的各段落是否涵盖所有 n 个字符串。
-
+// Musical Theme
+// 无交叉最长相同子串。此题定义相同为允许加上或减去同一个值。
+// 突破点为先处理为差分串，第一个数丢掉。然后正常求SA。
+// 二分枚举最长子串。由于要求不交叉，在判断枚举值时需要在连续满足mid的sa中找距离最远的两个，举例不小于mid则为满足。
+// 由于做了差分，最终求得的值需要再 +1 得到子串长度。
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -81,9 +79,6 @@ void SA::DA(int n, int m)
             x[sa[i]] = _DACMP(y, sa[i - 1], sa[i], j) ? p - 1 : p ++;
     }
 }
-char buf[210];
-int r[maxn], who[maxn];
-int visRecord[210], vtp;
 void SA::CalHeight()
 {
     int i, j, k = 0;
@@ -91,56 +86,45 @@ void SA::CalHeight()
     for(i = 0; i < len; height[rk[i ++]] = k)
         for(k -= !!k, j = sa[rk[i] - 1]; r[i + k] == r[j + k]; k ++);
 }
-inline bool Vis(int ith) {return visRecord[ith] == vtp ? true : (visRecord[ith] = vtp) && false;}
-bool Judge(SA &sa, int n, int len, int mid)
+bool Judge(SA &sa, int n, int mid)
 {
-    int cnt = 0;
-    for(int i = 1; i <= len; i ++)
+    int l = sa.sa[0], r = sa.sa[0];
+    for(int i = 1; i <= n; i ++)
     {
-        if(sa.height[i] >= mid)
-        {
-            cnt += !cnt && who[sa.sa[i - 1]] >= 0 && !Vis(who[sa.sa[i - 1]]);
-            cnt += who[sa.sa[i]] >= 0 && !Vis(who[sa.sa[i]]);
-            if(cnt >= n) return true;
-        }
+        if(sa.height[i] < mid) l = r = sa.sa[i];
         else
-            cnt = 0, vtp ++;
+        {
+            l = l == -1 ? sa.sa[i] : std::min(l, sa.sa[i]);
+            r = r == -1 ? sa.sa[i] : std::max(r, sa.sa[i]);
+            if(r - l >= mid) return true;
+        }
     }
     return false;
 }
+int r[maxn];
 int main()
 {
     SA sa(maxn);
-    int t, n, len;
-    for(scanf("%d", &t); t --; )
+    int n, k;
+    while(scanf("%d", &n) != EOF && n)
     {
-        memset(visRecord, 0, sizeof(visRecord));
-        vtp = 1;
-        scanf("%d", &n);
-        len = 0;
         for(int i = 0; i < n; i ++)
-        {
-            scanf("%s", buf);
-            for(int j = 0; buf[j]; j ++, len ++)
-                r[len] = buf[j], who[len] = i;
-            r[len] = 129 + (i << 1);
-            who[len ++] = -1;
-            for(int j = strlen(buf) - 1; j >= 0; j --, len ++)
-                r[len] = buf[j], who[len] = i;
-            r[len] = 129 + (i << 1 | 1);
-            who[len] = -1;
-            if(i < n - 1) len ++;
-        }
-        sa.CalSA(r, len, 350);
+            scanf("%d", &r[i]);
+        n --;
+        for(int i = 0; i < n; i ++)
+            r[i] = r[i + 1] - r[i] + 90;
+        r[n] = 0;
+        sa.CalSA(r, n, 200);
         sa.CalHeight();
-        int left = 0, right = len + 1, mid;
-        while(left <= right)
+        int ans = 0;
+        int left = 0, right = n + 1, mid;
+        while(left < right - 1)
         {
             mid = left + right >> 1;
-            if(Judge(sa, n, len, mid)) left = mid + 1;
-            else right = mid - 1;
+            if(Judge(sa, n, mid)) left = mid;
+            else right = mid;
         }
-        printf("%d\n", n == 1 ? len >> 1 : right);
+        printf("%d\n", left >= 4 ? left + 1 : 0);
     }
     return 0;
 }
