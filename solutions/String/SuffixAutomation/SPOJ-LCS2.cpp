@@ -30,56 +30,62 @@ struct SAM
     SAM(){Init();}
     SAM(int maxn_){smn.resize(maxn_);}
     void Init(){stp = slast = 0; AddNode();}
-    void AddNode(int l_ = 0)
-    {
-        if(stp >= smn.size()) smn.push_back(SamNode(l_));
-        else smn[stp].Init(l_);
-        stp ++;
-    }
-    void Add(int c)
-    {
-        int cur = stp, p = slast;
-        AddNode(smn[slast].len + 1);
-        slast = cur;
-        for(; p != -1 && !smn[p].nex.count(c); p = smn[p].link)
-            smn[p].nex[c] = cur;
-        if(p == -1) smn[cur].link = 0;
-        else
-        {
-            int q = smn[p].nex[c];
-            if(smn[p].len + 1 == smn[q].len) smn[cur].link = q;
-            else
-            {
-                int clone = stp;
-                AddNode();
-                smn[clone].len = smn[p].len + 1;
-                smn[clone].nex = smn[q].nex;
-                smn[clone].link = smn[q].link;
-                for(; p != -1 && smn[p].nex[c] == q; p = smn[p].link)
-                    smn[p].nex[c] = clone;
-                smn[q].link = smn[cur].link = clone;
-            }
-        }
-    }
+    void AddNode(int l_ = 0);
+    void Add(int c);
     int Nex(int cur, int c) {return smn[cur].nex.count(c) ? smn[cur].nex[c] : 0;}
     SamNode &operator[](int cur) {return smn[cur];}
-    void Build(char buf[])
-    {
-        Init();
-        for(int i = 0; buf[i]; i ++)
-            Add(buf[i]);
-    }
+    template<typename GSTR>
+    void Build(GSTR buf[], int len = -1);
     // RadixSort for node topo
     std::vector<int> rcnt, rp;
-    void RadixSort()
-    {
-        if(rcnt.size() < stp) rcnt.resize(stp), rp.resize(stp);
-        std::fill(rcnt.data(), rcnt.data() + stp, 0);
-        for(int i = 0; i < stp; i ++) rcnt[smn[i].len]++;
-        for(int i = 1; i < stp; i ++) rcnt[i] += rcnt[i-1];
-        for(int i = 0; i < stp; i ++) rp[-- rcnt[smn[i].len]] = i;
-    }
+    void RadixSort();
 };
+void SAM::AddNode(int l_)
+{
+    if(stp >= smn.size()) smn.push_back(SamNode(l_));
+    else smn[stp].Init(l_);
+    stp ++;
+}
+void SAM::Add(int c)
+{
+    int cur = stp, p = slast;
+    AddNode(smn[slast].len + 1);
+    slast = cur;
+    for(; p != -1 && !smn[p].nex.count(c); p = smn[p].link)
+        smn[p].nex[c] = cur;
+    if(p == -1) smn[cur].link = 0;
+    else
+    {
+        int q = smn[p].nex[c];
+        if(smn[p].len + 1 == smn[q].len) smn[cur].link = q;
+        else
+        {
+            int clone = stp;
+            AddNode();
+            smn[clone].len = smn[p].len + 1;
+            smn[clone].nex = smn[q].nex;
+            smn[clone].link = smn[q].link;
+            for(; p != -1 && smn[p].nex[c] == q; p = smn[p].link)
+                smn[p].nex[c] = clone;
+            smn[q].link = smn[cur].link = clone;
+        }
+    }
+}
+template<typename GSTR>
+void SAM::Build(GSTR buf[], int len)
+{
+    Init();
+    if(len == -1) len = strlen(buf);
+    for(int i = 0; i < len; i ++) Add(buf[i]);
+}
+void SAM::RadixSort()
+{
+    if(rcnt.size() < stp) rcnt.resize(stp), rp.resize(stp);
+    std::fill(rcnt.data(), rcnt.data() + stp, 0);
+    for(int i = 0; i < stp; i ++) rcnt[smn[i].len]++;
+    for(int i = 1; i < stp; i ++) rcnt[i] += rcnt[i-1];
+    for(int i = 0; i < stp; i ++) rp[-- rcnt[smn[i].len]] = i;
+}
 char buf[maxn];
 int ans[maxn], nodemax[maxn], totalans;
 int main()
