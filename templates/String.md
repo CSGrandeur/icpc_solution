@@ -274,6 +274,7 @@ void GetRank()
 
 ```cpp
 const int maxn = 5e5 + 10;
+
 struct SAM
 {
     struct SamNode
@@ -320,11 +321,23 @@ struct SAM
             }
         }
     }
+    int Nex(int cur, int c) {return smn[cur].nex.count(c) ? smn[cur].nex[c] : 0;}
+    SamNode &operator[](int cur) {return smn[cur];}
     void Build(char buf[])
     {
         Init();
         for(int i = 0; buf[i]; i ++)
             Add(buf[i]);
+    }
+    // RadixSort for node topo
+    std::vector<int> rcnt, rp;
+    void RadixSort()
+    {
+        if(rcnt.size() < stp) rcnt.resize(stp), rp.resize(stp);
+        std::fill(rcnt.data(), rcnt.data() + stp, 0);
+        for(int i = 0; i < stp; i ++) rcnt[smn[i].len]++;
+        for(int i = 1; i < stp; i ++) rcnt[i] += rcnt[i-1];
+        for(int i = 0; i < stp; i ++) rp[-- rcnt[smn[i].len]] = i;
     }
 };
 ```
