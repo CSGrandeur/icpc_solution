@@ -8,7 +8,7 @@
 ```cpp
 typedef long long LL;
 LL cm[maxn][maxn];
-LL ComList()
+void ComList()
 {
     for(int i = 0; i < maxn; i ++)
         for(int j = 0; j <= i; j ++)
