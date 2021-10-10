@@ -30,7 +30,7 @@ LL CRT(int n, LL a[], LL b[])
         LL mi = bm / b[i];
         ans = (ans + a[i] * mi * ExGcdInv(mi, b[i])) % bm;
     }
-    return ans == 0 ? bm : ans;
+    return ans;
 }
 LL a[5], b[5];
 int main()
