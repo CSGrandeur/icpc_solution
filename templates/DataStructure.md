@@ -961,3 +961,22 @@ COTYPE ManDis(int spid, vector<vector<COTYPE> > &p)
     return ret;
 }
 ```
+
+
+## 数组
+
+### Lower Bound
+
+```cpp
+int LowerBound(int a[], int n, int q)
+{
+    int left = 0, right = n, mid;
+    while(left < right)
+    {
+        mid = left + right >> 1;
+        if(a[mid] >= q) right = mid;
+        else left = mid + 1;
+    }
+    return left;
+}
+```
