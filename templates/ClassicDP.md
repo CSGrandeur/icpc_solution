@@ -11,7 +11,7 @@ const int maxn = 1100000;
 int dp[maxn], tp;
 int LDS(int a[], int n)
 {
-    tp = 0;
+    tp = -1;
     for(int i = 0; i < n; i ++)
     {
         int dpIth = 0;

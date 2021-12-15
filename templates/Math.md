@@ -136,6 +136,44 @@ void SetPrime()
 }
 ```
 
+## 欧拉函数
+
+### 直接计算欧拉函数
+
+```cpp
+// 𝑛 \prod_(𝑝|𝑛) {(1-1/p)}
+int Euler(int n)
+{
+    int res = n, tn = n;
+    for(int i = 2; i * i <= tn; i ++)
+    {
+        if(tn % i) continue;
+        res = res / i * (i - 1);
+        while(tn % i == 0) tn /= i;
+    }
+    if(tn > 1) res = res / tn * (tn - 1);
+    return res;
+}
+```
+
+### 欧拉函数打表
+
+```cpp
+int el[maxn];   // 累加求和的话注意 long long
+void EulerList()
+{
+    el[1] = 1;
+    for(int i = 2; i < maxn; i ++)
+        el[i] = i;
+    for(int i = 2; i < maxn; i ++)
+    {
+        if(el[i] == i)
+            for(int j = i; j < maxn; j += i)
+                el[j] = el[j] / i * (i - 1);
+    }
+}
+```
+
 ## 快速幂取模
 
 ```cpp

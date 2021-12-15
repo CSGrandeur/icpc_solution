@@ -190,3 +190,213 @@ void TopoSort()
 
 根据题目特点，可利用特殊数据推出行列式结果，数据范围允许时可按照行列式性质计算行列式。
 
+## 网络流
+
+### 最大流 Dinic
+
+邻接矩阵版
+
+```cpp
+const int maxn = 2e2 + 10;  // 数据规模
+const int inf = 0x3f3f3f3f; // 表示无穷大
+int cap[maxn][maxn];    // 容量图，本代码没有记录可行流，直接减少容量边来代替表示流量的增加
+int ly[maxn];           // 记录分层，即从源点起按广搜距离的分层，ly[i] 表示 i 到 源点的距离
+int work[maxn];         // 辅助坐标，在计算增广线路时，每个结点已经遍历到的相邻结点编号，比如 work[i] = 5，表示 i 结点已经遍历到了 5 号结点，下次DFS到 i 的时候就从5开始。
+int n, m, so, te;       // n结点数，m边数，so源点source，te汇点terminal
+// 如果题目网络为浮点型，相应的DiDFS、Dinic返回值以及 cap 等相关变量也都改成double即可
+
+bool DiBFS()
+{
+    // 广搜BFS做分层图，顺便返回是否能够从源点到达汇点。
+    queue<int> q;
+    memset(ly, -1, sizeof(ly));
+    q.push(so);
+    ly[so] = 0;
+    while(!q.empty())
+    {
+        int now = q.front();
+        q.pop();
+        for(int nex = 1; nex <= te; nex ++)
+        {
+            if(ly[nex] > 0 ||!cap[now][nex]) continue;
+            // 还有剩余容量，就计入辅助图，并同时利用BFS记录到源点的距离
+            ly[nex] = ly[now] + 1;
+            if(nex == te) return true;
+            q.push(nex);
+        }
+    }
+    // 没有到达汇点，说明已经达到最大流
+    return false;
+}
+int DiDFS(int cur, int inc)
+{
+    // cur表示当前搜索结点，inc表示到cur为止，这条增广路径能增加的流量，即 min{路径上每一段可增加的流量}
+    int tinc;
+    if(cur == te)   // 递归终点：到达汇点
+        return inc;
+    // 这里 &i 用了引用，即枚举相邻结点时，work 辅助坐标跟着发生变化。
+    for(int &i = work[cur]; i <= te; i ++)
+    {
+        // cur 到 i 有剩余容量，且在分层网络中 i 比 cur 距离源点远一部，且一直递归到终点的可增加流量不为零
+        if(cap[cur][i] && ly[i] == ly[cur] + 1 && (tinc = DiDFS(i, min(inc, cap[cur][i]))))
+        {
+            // 对这条增广路径更新流量（本代码直接修改容量）
+            cap[cur][i] -= tinc;
+            cap[i][cur] += tinc;
+            return tinc;
+        }
+    }
+    return 0;
+}
+
+int Dinic()
+{
+    int ret = 0, tinc;
+    while(DiBFS())  // 生成辅助网络（即保留所有不饱和反向边，也即能够增加正向流量的边）
+    {
+        // 清空辅助坐标，即DFS时候每个结点遍历相邻结点编号都从 0 开始
+        memset(work, 0, sizeof(work));
+        // 对于本次辅助网络，while找到所有的增广线路
+        while(tinc = DiDFS(so, inf))
+            ret += tinc;    // 最大流加上找到的增广流量
+    }
+    return ret;
+}
+```
+
+前向星版
+
+```cpp
+// 建图 略...
+const int maxn = 2e2 + 10;
+const int maxm = 1e4 + 10;
+const int inf = 0x3f3f3f3f;
+int fst[maxn], nex[maxm], v[maxm], cap[maxm], tp; 
+int ly[maxn], work[maxn], n, m, so, te;
+bool DiBFS()
+{
+    queue<int> q;
+    memset(ly, -1, sizeof(ly));
+    q.push(so);
+    ly[so] = 0;
+    while(!q.empty())
+    {
+        int now = q.front();
+        q.pop();
+        for(int i = fst[now]; i != -1; i = nex[i])
+        {
+            if(ly[v[i]] >= 0 || !cap[i]) continue;
+            ly[v[i]] = ly[now] + 1;
+            if(v[i] == te) return true;
+            q.push(v[i]);
+        }
+    }
+    return false;
+}
+int DiDFS(int cur, int inc)
+{
+    int tinc;
+    if(cur == te)
+        return inc;
+    for(int &i = work[cur]; i != -1; i = nex[i])
+    {
+        if(cap[i] && ly[v[i]] == ly[cur] + 1 && (tinc = DiDFS(v[i], min(inc, cap[i]))))
+        {
+            cap[i] -= tinc;
+            cap[i ^ 1] += tinc;
+            return tinc;
+        }
+    }
+    return 0;
+}
+
+int Dinic()
+{
+    int ret = 0, tinc;
+    while(DiBFS())
+    {
+        for(int i = 0; i <= n; i ++)
+            work[i] = fst[i];
+        while(tinc = DiDFS(so, inf))
+            ret += tinc;
+    }
+    return ret;
+}
+```
+
+### 最小费用最大流（MCMF）
+
+#### Dinic版
+
+```cpp
+int fst[maxn], nex[maxm], v[maxm], cap[maxm], w[maxm], tp; 
+int ly[maxn], work[maxn], n, m, so, te, maxflow, mincost;
+bool inq[maxn];
+void AddEdge(int s, int e, int cp, int wt)
+{
+    v[tp] = e;
+    cap[tp] = cp;
+    w[tp] = wt;
+    nex[tp] = fst[s];
+    fst[s] = tp ++;
+}
+void DbEdge(int s, int e, int cp, int wt)
+{
+    AddEdge(s, e, cp, wt);
+    AddEdge(e, s, 0, -wt);
+}
+bool DiSPFA()
+{
+    queue<int> q;
+    memset(ly, 0x3f, sizeof(ly));
+    q.push(so);
+    ly[so] = 0;
+    while(!q.empty())
+    {
+        int now = q.front();
+        q.pop();
+        inq[now] = false;
+        for(int i = fst[now]; i != -1; i = nex[i])
+        {
+            if(ly[now] + w[i] >= ly[v[i]] || !cap[i]) continue;
+            ly[v[i]] = ly[now] + w[i];
+            if(!inq[v[i]]) q.push(v[i]), inq[v[i]] = true;
+        }
+    }
+    return ly[te] != inf;
+}
+int DiDFS(int cur, int inc)
+{
+    int tinc;
+    if(cur == te) return inc;
+    inq[cur] = true;
+    for(int &i = work[cur]; i != -1; i = nex[i])
+    {
+        if(inq[v[i]] || !cap[i] || ly[v[i]] != ly[cur] + w[i]) continue;
+        if(!(tinc = DiDFS(v[i], min(inc, cap[i])))) continue;
+        cap[i] -= tinc;
+        cap[i ^ 1] += tinc;
+        mincost += tinc * w[i];
+        inq[cur] = false;
+        return tinc;
+    }
+    inq[cur] = false;
+    return 0;
+}
+
+void DinicMCMF()
+{
+    int tinc;
+    while(DiSPFA())
+    {
+        memcpy(work, fst, sizeof(fst));
+        while(tinc = DiDFS(so, inf))
+            maxflow += tinc;
+    }
+}
+```
+
+#### Primal-Dual版
+
+理论效率更高
+
