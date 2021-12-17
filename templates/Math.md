@@ -85,7 +85,23 @@ $$
 通项公式： 第一类斯特林数没有实用的通项公式。
 
 
+## 大施罗德（Schroder）数
 
+$(0,0)$ 到 $(n,n)$ 可横竖斜 的路径个数
+
+```cpp
+int sc[maxn], bsc[maxn];    // sc临时数组，bsc 大施罗德数
+// const int mod = 1e9 + 7;
+// int invList[maxn];       // 见逆元打表
+void GetBsc()
+{
+    sc[0] = sc[1] = 1;
+    for(int i = 2; i < maxn; i ++)
+        sc[i] = (1LL * (6LL * i - 3) % mod * sc[i - 1] % mod - 1LL * (i - 2) * sc[i - 2] % mod + mod) % mod * invList[i + 1] % mod;
+    for(int i = 1; i < maxn; i ++)
+        bsc[i] = i == 1 ? 1 : sc[i - 1] * 2 % mod;
+}
+```
 
 
 ## 筛质数
