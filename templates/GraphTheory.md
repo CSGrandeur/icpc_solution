@@ -472,3 +472,46 @@ void PdMCMF(int ndnum)
     }
 }
 ```
+
+
+### 二分图最大匹配
+
+匈牙利算法
+
+```cpp
+
+bool g[maxn][maxn], chk[maxn];
+int xM[maxn], yM[maxn];
+int xN, yN, e;
+bool SearchPath(int u)
+{
+    for(int v = 1; v <= yN; ++ v)
+    {
+        if(g[u][v] && !chk[v])
+        {
+            chk[v] = true;
+            if(yM[v] == -1 || SearchPath(yM[v]))
+            {
+                yM[v] = u, xM[u] = v;
+                return true;
+            }    
+        }
+    }
+    return false;
+}
+int Hungarian()
+{
+    memset(xM, -1, sizeof(xM));
+    memset(yM, -1, sizeof(yM));
+    int ret = 0;
+    for(int u = 1; u <= xN; u ++)
+    {
+        if(xM[u] == -1)
+        {
+            memset(chk, false, sizeof(chk));
+            ret += SearchPath(u);
+        }
+    }
+    return ret;
+}
+```
