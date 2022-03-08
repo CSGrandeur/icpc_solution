@@ -82,7 +82,7 @@ struct CLNode
     CLNode& SetRc(int _rc) {rc = _rc; return *this;}    // 设置统计位rc，比如多少个独立插头
     int GetLink(int j);                                 // 获取插头另一头，括号式成对插头时使用，Link State
     CODET Encode();
-    CLNode& Decode(CODET k);                            // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
+    CLNode& Decode(CODET k);                            // 兼容"只有插头编号"和"有编号与颜色两个域"的编码，设置正确的PLCL（颜色域位宽）即可
     CLNode& Recode();                                   // 给插头重编号，Recode
     CLNode& Merge(int ith, int jth);                    // 合并插头，所有 jth 改为 ith 的编号
     CLNode& Set(int ith, int _sr=-1, int _cl=-1);       // 无颜色域时忽略 _cl 参数即可

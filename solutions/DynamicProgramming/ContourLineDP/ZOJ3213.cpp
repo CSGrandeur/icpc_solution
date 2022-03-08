@@ -1,6 +1,6 @@
 // difficulty: 5
 // Beautiful Meadow
-// 插头DP入门4：真-简单路径（“简单路径”是路径类型，不是说题简单）
+// 插头DP入门4：真-简单路径（"简单路径"是路径类型，不是说题简单）
 // 此题要求为简单路径求最优权值，不一定要走所有块，无法构造成回路问题。
 // 定义一个概念：独立插头，即当前情况下，没有穿过轮廓线的插头数量。
 // 单路径不可能在轮廓线之上存在超过 2 个独立插头。
@@ -40,7 +40,7 @@ struct CLNode
     CLNode& SetRc(int _rc) {rc = _rc; return *this;}    // 设置统计位rc，比如多少个独立插头
     int GetLink(int j);                                 // 获取插头另一头，括号式成对插头时使用，Link State
     CODET Encode();
-    CLNode& Decode(CODET k);                            // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
+    CLNode& Decode(CODET k);                            // 兼容"只有插头编号"和"有编号与颜色两个域"的编码，设置正确的PLCL（颜色域位宽）即可
     CLNode& Recode();                                   // 给插头重编号，Recode
     CLNode& Merge(int ith, int jth);                    // 合并插头
     CLNode& Set(int ith, int _sr=-1, int _cl=-1);       // 无颜色域时忽略 _cl 参数即可

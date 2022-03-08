@@ -1,0 +1,4 @@
+template: latex_temp.tex
+papersize: a4
+classoption:
+  - landscape

@@ -481,7 +481,7 @@ void Update(int now, int v, int left, int right, int up, int down, int x, int y)
 int Query(int now, int left, int right, int up, int down, int sl, int sr, int su, int sd)
 {
     // Query(0, minco, maxco, minco, maxco, sl, sr, su, sd);
-    // x∈[sl, sr)，y∈[su, sd) 的矩形范围个点数之和
+    // x\in [sl, sr)，y\in [su, sd) 的矩形范围个点数之和
     if(now == -1 || left == right || up == down)
         return 0;
     if(sl <= left && sr >= right && su <= up && sd >= down)
@@ -499,7 +499,7 @@ int Query(int now, int left, int right, int up, int down, int sl, int sr, int su
 
 ### 常规线段树
 
-线段树灵活性很强，重在理解和使用，无法固定模板，这里仅以“区间加等差数列lasy标记、统计区间和”为例。
+线段树灵活性很强，重在理解和使用，无法固定模板，这里仅以 区间加等差数列lasy标记、统计区间和 为例。
 
 ```cpp
 struct SegTree
@@ -579,8 +579,8 @@ struct SegTree
 const int maxN = 1e6 + 10;      // 数组大小
 const int maxM = maxN << 5;     // 线段树结点占用，基本上是 maxN * log2(max value)
 const int maxV = 1e9 + 10;      // 离散数值的最大值
-int rt[maxN], lc[maxM], rc[maxM];   // root、左“指针”、右“指针”
-int tp;                         // 全局自增新建结点“指针”
+int rt[maxN], lc[maxM], rc[maxM];   // root、左"指针"、右"指针"
+int tp;                         // 全局自增新建结点"指针"
 ```
 
 ### 区间数值和

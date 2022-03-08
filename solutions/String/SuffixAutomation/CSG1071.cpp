@@ -1,7 +1,7 @@
 // difficulty: 4
 // Distinct Substrings
 // 这题正解是扩展KMP
-// 这里用后缀自动机（SAM）水过：n个数建SAM，后1~m分别“虚假地”插入SAM，即只插入cur结点，但所有涉及修改其它结点的操作都跳过
+// 这里用后缀自动机（SAM）水过：n个数建SAM，后1~m分别"虚假地"插入SAM，即只插入cur结点，但所有涉及修改其它结点的操作都跳过
 // 此时 len[cur] - len[link[cur]] 就是新加数字的新增不重复后缀个数
 #include<stdio.h>
 #include<string.h>

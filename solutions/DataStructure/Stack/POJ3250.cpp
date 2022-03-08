@@ -1,6 +1,6 @@
 // difficulty: 2
 // Bad Hair Day
-// 经典栈模拟题，用栈维护“当前奶牛之前所有高于该奶牛的奶牛”
+// 经典栈模拟题，用栈维护"当前奶牛之前所有高于该奶牛的奶牛"
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>

@@ -93,7 +93,7 @@ struct CLNode
     int Sr(int j) {return j < 0 ? -1 : sr[j];}
     int GetLink(int j);                             // 获取插头另一头，括号式成对插头时使用，Link State
     CODET Encode();
-    CLNode& Decode(CODET k);                        // 兼容“只有插头编号”和“有编号与颜色两个域”的编码，设置正确的PLCL（颜色域位宽）即可
+    CLNode& Decode(CODET k);                        // 兼容"只有插头编号"和"有编号与颜色两个域"的编码，设置正确的PLCL（颜色域位宽）即可
     CLNode& Recode();                               // 给插头重编号，Recode
     CLNode& Merge(int ith, int jth);                // 合并插头
     CLNode& Set(int ith, int _sr=-1, int _cl=-1);   // 无颜色域时忽略 _cl 参数即可
@@ -192,14 +192,14 @@ void DPTrans(int i, int j, CODET k, ANST v, DPMAP &nexmp)
             UD(nexmp, cn.Set(j, maxul).Set(j + 1, minul).Encode(), v);
     }
     else if(left == up)
-    {  // 有插头且两插头“括号”一致，则分 1、1 的左括号情况和 2、2 的右括号情况处理
+    {  // 有插头且两插头"括号"一致，则分 1、1 的左括号情况和 2、2 的右括号情况处理
         if(left == 1)
             UD(nexmp, cn.Set(cn.GetLink(j + 1), 1).Set(j, 0).Set(j + 1, 0).Encode(), v);
         else
             UD(nexmp, cn.Set(cn.GetLink(j), 2).Set(j, 0).Set(j + 1, 0).Encode(), v);
     }
     else if(left == 2 || End(i, j))
-        // 左与上插头“括号”不同，左是 2 可直接封闭，否则只有 End 位置才能封闭 左1 上2
+        // 左与上插头"括号"不同，左是 2 可直接封闭，否则只有 End 位置才能封闭 左1 上2
         UD(nexmp, cn.Set(j, 0).Set(j + 1, 0).Encode(), v);
     // 因为所有UD操作要么是互斥条件，要么是`!left + !up == 1`里Set的坐标相同，所以不需要开CLNode临时变量，直接用cn就行。
 }

@@ -157,7 +157,7 @@ void SetPrime()
 ### 直接计算欧拉函数
 
 ```cpp
-// 𝑛 \prod_(𝑝|𝑛) {(1-1/p)}
+// n \prod_(p|n) {(1-1/p)}
 int Euler(int n)
 {
     int res = n, tn = n;

@@ -1,7 +1,7 @@
 // difficulty: 2
 // Matrix Chain Multiplication
 // 题目数据给的友好，矩阵乘必有括号，括号内必是两个矩阵相乘，可以嵌套。
-// 这样就可以遇到字母即入栈，遇到“)”就出栈两个矩阵，相乘结果再入栈。
+// 这样就可以遇到字母即入栈，遇到")"就出栈两个矩阵，相乘结果再入栈。
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>

@@ -121,7 +121,7 @@ bool JudgeValid(int i, int j, int color)
 {  // 判断当前轮廓线是否合法
     int upcl = cn.Cl(j + 1), upsr = cn.Sr(j + 1);
     if(color == upcl) return true;  // 如果新块颜色与 up 相同，说明 up 这个连通块还没堵死
-    if(!upsr) return true;          // 编码为 0 则当前在第一行，“上一行”没有东西，没约束
+    if(!upsr) return true;          // 编码为 0 则当前在第一行，"上一行"没有东西，没约束
     int cntS = 0, cntC = 0;
     for(int o = 0; o <= m; o ++)
     {
@@ -149,7 +149,7 @@ void DPTrans(int i, int j, CODET k, ANST v, int color, DPMAP &nexmp)
         cn.Set(j, ltcl == color ? ltsr : upsr, color);
     else
     {
-        // 左与上 与当前块拟涂色不同色，特判右下“墙角”情况不能开新块
+        // 左与上 与当前块拟涂色不同色，特判右下"墙角"情况不能开新块
         if(End(i, j) && lucl == color) return;
         cn.Set(j, PM >> PLCL, color).Recode();
     }
@@ -290,7 +290,7 @@ bool JudgeValid(CODET nk, int i, int j, int color)
 {  // 判断当前轮廓线是否合法
     int upcl = GSCL(nk, j + 1), upsr = GSSR(nk, j + 1);
     if(color == upcl) return true;  // 如果新块颜色与 up 相同，说明 up 这个连通块还没堵死
-    if(!upsr) return true;          // 编码为 0 则当前在第一行，“上一行”没有东西，没约束
+    if(!upsr) return true;          // 编码为 0 则当前在第一行，"上一行"没有东西，没约束
     int cntS = 0, cntC = 0;
     for(int o = 0; o <= m; o ++)
     {
@@ -318,7 +318,7 @@ void DPTrans(int i, int j, CODET k, ANST v, int color, DPMAP &nexmp)
         nk = SS(k, j, ltcl == color ? lt : up);
     else
     {
-        // 左与上 与当前块拟涂色不同色，特判右下“墙角”情况不能开新块
+        // 左与上 与当前块拟涂色不同色，特判右下"墙角"情况不能开新块
         if(End(i, j) && lucl == color) return;
         nk = RC(SSCL(SS(k, j, PM), j, color));
     }

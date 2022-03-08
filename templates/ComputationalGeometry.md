@@ -138,7 +138,7 @@ bool SegCross(Point a,  Point b,  Point c,  Point d, Point &p)
     }
     return false;
 }
- 
+ 
 ```
 
 ## 经典应用
@@ -189,7 +189,7 @@ struct Line
         return Point( (l.s.x * v + l.e.x * u) / (u + v),
                     (l.s.y * v + l.e.y * u) / (u + v) );
     }
-    bool operator<(const Line &l)const //排序函数，优先极角，“左”边直线靠前
+    bool operator<(const Line &l)const //排序函数，优先极角，"左"边直线靠前
     {return dcmp(ang - l.ang) ? ang < l.ang : d < l.d;}
 };
 bool HalfPanelCross(Line l[], int n, Point cp[], int &m) 
@@ -303,7 +303,7 @@ double CPFMP(Point p[], int n) //ConvexPolygonFarMostPoints
     return ans;
 }
 
- 
+ 
 ```
 
 ### 两不相交凸多边形最近点对
@@ -970,7 +970,7 @@ void SA()
         if(sam[i].mindis > sam[j].mindis) j = i;
     printf("The safest point is (%.1f, %.1f).\n", sam[j].x, sam[j].y);
 }
- 
+ 
 ```
 
 ## 三维几何
