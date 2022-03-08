@@ -1,5 +1,39 @@
 # 数据结构
 
+## 常用预处理
+
+### 离散化
+
+```cpp
+template<typename TP_V>
+struct Discretization
+{
+    std::vector<TP_V> b;
+    std::unordered_map<TP_V, int> mp;
+    void Init(){b.clear(); mp.clear();}
+    Discretization(){Init();}
+    Discretization(std::vector<TP_V> &a){Make(a);}
+    void Make(std::vector<TP_V> &a)
+    {
+        Init();
+        Add(a);
+    }
+    void Add(std::vector<TP_V> &a)
+    {
+        for(auto i : a) b.push_back(i);
+        std::sort(b.begin(), b.end());
+        b.erase(std::unique(b.begin(), b.end()), b.end());
+        for(int i = 0; i < b.size(); i ++) mp[b[i]] = i;
+    }
+    unsigned size()
+    {
+        return b.size();
+    }
+    TP_V &operator[](int ith){return b[ith];}
+    int Loc(TP_V x) {return mp.count(x) ? mp[x] : -1;}
+};
+```
+
 ## 哈希
 
 ### 数值哈希
