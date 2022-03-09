@@ -605,44 +605,110 @@ struct SegTree
 };
 ```
 
-## 可持久化线段树
+## 可持久化数据结构
 
-### 常规定义
+### 可持久化线段树
+
+灵活性方面和线段树一样，没有固定模板。这里以区间和为例。
+
+动态内存版本，如果卡常，可以预分配内存例如`rt.reserve(maxn)`。一般`rt`分配`maxn`，`lc`、`rc`、`val`分配`maxn * 32`。
 
 ```cpp
-const int maxN = 1e6 + 10;      // 数组大小
-const int maxM = maxN << 5;     // 线段树结点占用，基本上是 maxN * log2(max value)
-const int maxV = 1e9 + 10;      // 离散数值的最大值
-int rt[maxN], lc[maxM], rc[maxM];   // root、左"指针"、右"指针"
-int tp;                         // 全局自增新建结点"指针"
+struct PersistentSegTree
+{
+    std::vector<int> val, rt, lc, rc;
+    void Init()
+    {
+        rt.clear(), lc.clear(), rc.clear(), val.clear();
+    }
+    int Add(int v=0, int l=-1, int r=-1)
+    {
+        val.push_back(v);
+        lc.push_back(l);
+        rc.push_back(r);
+        return lc.size() - 1;
+    }
+    int Clone(int now)
+    {
+        if(now == -1) return Add();
+        return Add(val[now], lc[now], rc[now]);
+    }
+    void Build()
+    {
+        rt.push_back(Add());
+    }
+    int Update(int now, int left, int right, int v, int loc)
+    {
+        int nex = Clone(now);
+        val[nex] += v;
+        if(left < right - 1)
+        {
+            int mid = left + right >> 1;
+            if(loc < mid) {int nlc = Update(lc[nex], left, mid, v, loc); lc[nex] = nlc;}
+            else {int nrc = Update(rc[nex], mid, right, v, loc); rc[nex] = nrc;}
+        }
+        return nex;
+    }
+    int Query(int now, int l, int r, int left, int right)
+    {
+        if(now == -1) return 0;
+        if(l <= left && r >= right) return val[now];
+        int mid = left + right >> 1, ret = 0;
+        if(l < mid) ret += Query(lc[now], l, r, left, mid);
+        if(r > mid) ret += Query(rc[now], l, r, mid, right);
+        return ret;
+    }
+};
 ```
 
-### 区间数值和
+静态构建，以可持久化数组为例：
 
 ```cpp
-void Update(int v, int left, int right, int &now, int last)
-{
-    // 沿着last版本的树，更新now版本的一条链
-    now = tp ++;
-    lc[now] = lc[last];
-    rc[now] = rc[last];
-    val[now] = val[last] + v;   // now版本下[left, right) 范围内所有数的和
-    if(left >= right - 1) return;
-    int mid = left + right >> 1;
-    if(v < mid) Update(v, left, mid, lc[now], lc[last]);
-    else Update(v, mid, right, rc[now], rc[last]);
-}
-LL Query(int st, int ed, int left, int right, int tl, int tr)
-{
-    // 求编号区间[l,r)的数值在[st, ed)范围的数的和
-    // 通过传参，tl对应l-1前缀的版本，tr对应r前缀的版本，在树上求前缀差
-    if(st <= left && ed >= right) return val[tr] - val[tl];
-    int mid = left + right >> 1;
-    LL res = 0;
-    if(st < mid) res += Query(st, ed, left, mid, lc[tl], lc[tr]);
-    if(ed > mid) res += Query(st, ed, mid, right, rc[tl], rc[tr]);
-    return res;
-}
+    int _Build(int left, int right, std::vector<int> &a)
+    {
+        if(left >= right) return -1;
+        int now = Add();
+        if(left == right - 1)
+        {
+            val[now] = a[left];
+        }
+        else
+        {
+            int mid = left + right >> 1;
+            int nlc = _Build(left, mid, a);
+            lc[now] = nlc;
+            int nrc = _Build(mid, right, a);
+            rc[now] = nrc;
+        }
+        return now;
+    }
+    void Build(int left, int right, int std::vector<int> &a)
+    {
+        rt.push_back(_Build(left, right, a));
+    }
+```
+
+版本差异查询，以区间第 k 小为例：
+
+```cpp
+    int Query(int lnow, int rnow, int left, int right, int kth)
+    {
+        if(left == right - 1) return left;
+        int sum = val[lc[rnow]] - val[lc[lnow]];
+        int mid = left + right >> 1;
+        if(sum >= kth) return Query(lc[lnow], lc[rnow], left, mid, kth);
+        else return Query(rc[lnow], rc[rnow], mid, right, kth - sum);
+    }
+```
+
+使用示例：
+
+```cpp
+PersistentSegTree pst;
+pst.Init();
+pst.Build();
+for(int i = 0; i < n; i ++)
+    pst.rt.push_back(pst.Update(pst.rt.back(), 0, n, val, loc);
 ```
 
 ## KD树
