@@ -1,10 +1,13 @@
 // difficulty: 3
-// 【模板】可持久化线段树 2
+// [POI2014]KUR-Couriers
 // 可持久化数据结构入门，静态线段树版本控制
-// 数据离散化，建区间个数统计线段树，初始化每个位置为0，表示每种数的个数
-// 按顺序把每个数（离散化后的编号）以可持久化的方式插入树，即每次插入一条链，新增一个root
-// 对于 l r k 的查询，即第 r 个root对应的版本减去第 l - 1 个root对应的版本即为 [l, r] 这个区间的数对应的区间个数统计线段树，
-// 此时相当于常规线段树上第k小问题。
+// 建区间个数统计线段树，初始化每个位置为0，表示每种数的个数
+// 按顺序把每个数以可持久化的方式插入树，即每次插入一条链，新增一个root
+// 对于 l r 的查询，即第 r 个root对应的版本减去第 l - 1 个root对应的版本即为 [l, r] 这个区间的数对应的区间个数统计线段树
+// 找数量多于半数的区间。如果整个区间都不多于半数则直接返回。
+// 这题讨论区有人提出卡可持久化线段树的内存。这个代码全vector动态结构，没有出现卡内存问题。
+// 带上O2提交轻松过。不带O2的话卡第二组数据。
+
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
@@ -65,65 +68,35 @@ struct PersistentSegTree
     {
         rt.push_back(_Update(now, left, right, v, loc));
     }
-    int Query(int lnow, int rnow, int left, int right, int kth)
+    int Query(int lnow, int rnow, int left, int right, int halfnum)
     {
+        if(val[rnow] - val[lnow] <= halfnum) return -1;
         if(left == right - 1) return left;
         int sum = val[lc[rnow]] - val[lc[lnow]];
         int mid = left + right >> 1;
-        if(sum >= kth) return Query(lc[lnow], lc[rnow], left, mid, kth);
-        else return Query(rc[lnow], rc[rnow], mid, right, kth - sum);
+        if(sum > halfnum) return Query(lc[lnow], lc[rnow], left, mid, halfnum);
+        else return Query(rc[lnow], rc[rnow], mid, right, halfnum);
     }
-};
-template<typename TP_V>
-struct Discretization
-{
-    std::vector<TP_V> b;
-    std::unordered_map<TP_V, int> mp;
-    void Init(){b.clear(); mp.clear();}
-    Discretization(){Init();}
-    Discretization(std::vector<TP_V> &a){Make(a);}
-    void Make(std::vector<TP_V> &a)
-    {
-        Init();
-        Add(a);
-    }
-    void Add(std::vector<TP_V> &a)
-    {
-        for(auto i : a) b.push_back(i);
-        std::sort(b.begin(), b.end());
-        b.erase(std::unique(b.begin(), b.end()), b.end());
-        for(int i = 0; i < b.size(); i ++) mp[b[i]] = i;
-    }
-    unsigned size()
-    {
-        return b.size();
-    }
-    TP_V &operator[](int ith){return b[ith];}
-    int Loc(TP_V x) {return mp.count(x) ? mp[x] : -1;}
 };
 int main()
 {
     PersistentSegTree pst;
-    Discretization<int> dt;
-    int tmp, l, r, k;
+    int tmp, l, r;
     std::vector<int> a;
     while(scanf("%d%d", &n, &m) != EOF)
     {
         a.clear();
+        pst.Init();
+        pst.Build(0, n);
         for(int i = 0; i < n; i ++)
         {
             scanf("%d", &tmp);
-            a.push_back(tmp);
+            pst.Update(pst.rt.back(), 0, n, 1, tmp - 1);
         }
-        dt.Make(a);
-        pst.Init();
-        pst.Build(0, dt.size());
-        for(int i = 0; i < n; i ++)
-            pst.Update(pst.rt.back(), 0, dt.size(), 1, dt.Loc(a[i]));
         for(int i = 0; i < m; i ++)
         {
-            scanf("%d%d%d", &l, &r, &k);
-            printf("%d\n", dt[pst.Query(pst.rt[l - 1], pst.rt[r], 0, dt.size(), k)]);
+            scanf("%d%d", &l, &r);
+            printf("%d\n", pst.Query(pst.rt[l - 1], pst.rt[r], 0, n, r - l + 1 >> 1) + 1);
         }
     }
     return 0;
