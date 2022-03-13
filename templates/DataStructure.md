@@ -711,6 +711,70 @@ for(int i = 0; i < n; i ++)
     pst.rt.push_back(pst.Update(pst.rt.back(), 0, n, val, loc);
 ```
 
+### 可持久化Trie
+
+```cpp
+
+struct PersistentTrie
+{
+    std::vector<int> rt, ch[2], sz;
+    const int MBIT = 33;
+    void Init()
+    {
+        rt.clear(), ch[0].clear(), ch[1].clear(), sz.clear();
+        rt.push_back(Add());
+    }
+    int Add(int s=0, int l=-1, int r=-1)
+    {
+        sz.push_back(s);
+        ch[0].push_back(l);
+        ch[1].push_back(r);
+        return ch[0].size() - 1;
+    }
+    int Clone(int now)
+    {
+        if(now == -1) return Add();
+        return Add(sz[now], ch[0][now], ch[1][now]);
+    }
+    void Insert(int nv, LL x)
+    {
+        int nex = Clone(nv);
+        sz[nex] ++;
+        rt.push_back(nex);
+        for(int i = MBIT; i >= 0; i --)
+        {
+            int dir = x >> i & 1;
+            int newNex = Clone(ch[dir][nex]);
+            sz[newNex] ++;
+            ch[dir][nex] = newNex;
+            nex = ch[dir][nex];
+        }
+    }
+    inline int Sz(int now){return now == -1 ? 0 : sz[now];}
+    inline int Ch(int dir, int now){return now == -1 ? -1 : ch[dir][now];}
+};
+```
+
+以 x 与 Trie 的 nv 版本异或第 k 大为例的`Query`
+
+```cpp
+    LL Query(int nv, LL x, int k)
+    {
+        LL res = 0;
+        if(Sz(nv) < k) return -1;
+        for(int i = MBIT; i >= 0; i --)
+        {
+            int dir = x >> i & 1;
+            if(Sz(Ch(!dir, nv)) >= k)
+                nv = Ch(!dir, nv), res = res << 1 | 1;
+            else
+                k -= Sz(Ch(!dir, nv)), nv = Ch(dir, nv), res <<= 1;
+        }
+        return res;
+    }
+    // pt.Query(pt.rt.back(), x, k);
+```
+
 ## KD树
 
 通用维度，动态内存，性能稍差
