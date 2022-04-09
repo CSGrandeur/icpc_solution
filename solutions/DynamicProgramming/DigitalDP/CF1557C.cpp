@@ -1,3 +1,4 @@
+// difficulty: 2
 // Moamen and XOR
 // 从高位到低位，迭代前缀相等的情况数，和当前位左式大于右式的情况数，累加。
 #include<stdio.h>

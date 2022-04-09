@@ -1,0 +1,114 @@
+// difficulty: 4
+// MinimizOR
+// 主体思想是维护一个集合，快速判断集合中特定二进制位为0的个数是否不少于2个。
+// 第一反应是可持久化Trie，但是遇到问题是当一个二进制位为0个数少于2的时候，答案数字的这一位是1，在Trie上就往左往右都可以了。
+// 没想到的是这个“往左往右都可以”的情况，用vector维护暴力合并为一棵树，也能过这道题。
+// 正解不是可持久化Trie，见cf官网。
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<cmath>
+#include<algorithm>
+#include<vector>
+typedef long long LL;
+const int maxn = 2e5 + 10;
+int a[maxn << 5 | 1];
+
+struct PersistentTrie
+{
+    std::vector<int> rt, ch[2], sz;
+    const int MBIT = 33;
+    void Init()
+    {
+        rt.clear(), ch[0].clear(), ch[1].clear(), sz.clear();
+        rt.push_back(Add());
+    }
+    int Add(int s=0, int l=-1, int r=-1)
+    {
+        sz.push_back(s);
+        ch[0].push_back(l);
+        ch[1].push_back(r);
+        return ch[0].size() - 1;
+    }
+    int Clone(int now)
+    {
+        if(now == -1) return Add();
+        return Add(sz[now], ch[0][now], ch[1][now]);
+    }
+    void Insert(int nv, LL x)
+    {
+        int nex = Clone(nv);
+        sz[nex] ++;
+        rt.push_back(nex);
+        for(int i = MBIT; i >= 0; i --)
+        {
+            int dir = x >> i & 1;
+            int newNex = Clone(ch[dir][nex]);
+            sz[newNex] ++;
+            ch[dir][nex] = newNex;
+            nex = ch[dir][nex];
+        }
+    }
+    inline int Sz(int now){return now == -1 ? 0 : sz[now];}
+    inline int Ch(int dir, int now){return now == -1 ? -1 : ch[dir][now];}
+    LL Query(int lnow, int rnow)
+    {
+        std::vector<int> lv, rv;
+        lv.push_back(lnow);
+        rv.push_back(rnow);
+        LL res = 0;
+        for(int i = MBIT; i >= 0; i --)
+        {
+            int sz0 = 0, sz1 = 0;
+            std::vector<int> lvt, rvt;
+            for(int j = 0; j < lv.size(); j ++)
+            {
+                int tsz0 = Sz(Ch(0, rv[j])) - Sz(Ch(0, lv[j]));
+                int tsz1 = Sz(Ch(1, rv[j])) - Sz(Ch(1, lv[j]));
+                sz0 += tsz0;
+                sz1 += tsz1;
+                if(tsz0 || tsz1) lvt.push_back(lv[j]), rvt.push_back(rv[j]);
+
+            }
+            std::swap(lv, lvt);
+            std::swap(rv, rvt);
+            int vsize = lv.size();
+            if(sz0 > 1) res = res << 1;
+            else
+            {
+                for(int j = 0; j < vsize; j ++)
+                    lv.push_back(Ch(1, lv[j])), rv.push_back(Ch(1, rv[j]));
+                res = res << 1 | 1;
+            }
+            for(int j = 0; j < vsize; j ++)
+                lv[j] = Ch(0, lv[j]), rv[j] = Ch(0, rv[j]);
+
+        }
+        return res;
+    }
+};
+int n, q;
+PersistentTrie pt;
+int main()
+{
+    int t, x, l, r;
+    for(scanf("%d", &t); t --; )
+    {
+        pt.Init();
+        scanf("%d", &n);
+        for(int i = 0; i < n; i ++)
+        {
+            scanf("%d", &x);
+            pt.Insert(pt.rt.back(), x);
+        }
+        scanf("%d", &q);
+        while(q --)
+        {
+            scanf("%d%d", &l, &r);
+            printf("%lld\n", pt.Query(pt.rt[l - 1], pt.rt[r]));
+
+        }
+
+    }
+    return 0;
+}

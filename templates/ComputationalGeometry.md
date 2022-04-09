@@ -652,7 +652,6 @@ double ClosestPoints(Point p[], int l, int r) //[l, r)
     memcpy(p + l, lp + l, sizeof(Point) * (r - l));
     return ms;
 }
-
 ```
 
 ### 最小圆覆盖
