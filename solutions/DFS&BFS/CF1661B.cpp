@@ -1,0 +1,45 @@
+// difficulty: 2
+// Getting Zero
+// 常规搜索，加一和乘二得到特定数，经典题了。
+// 多次搜索可以考虑用记忆化减少重复计算
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<cmath>
+#include<algorithm>
+#include<vector>
+#include<queue>
+using namespace std;
+const int mod = 32768;
+const int maxn = 50000;
+int a;
+int dp[maxn];
+bool vis[maxn];
+int DPS(int a)
+{
+    if(vis[a]) return 0x3f3f3f3f;
+    int &ans = dp[a];
+    if(ans != -1) return ans;
+    if(a == 0) 
+        return ans = 0;
+    ans = 0x3f3f3f3f;
+    vis[a] = true;
+    ans = std::min(ans, DPS((a * 2) % mod) + 1);
+    ans = std::min(ans, DPS((a + 1) % mod) + 1);
+    vis[a] = false;
+    return ans;
+}
+int main()
+{
+    int t;
+    memset(dp, -1, sizeof(dp));
+    memset(vis, 0, sizeof(vis));
+    for(scanf("%d", &t); t --; )
+    {
+        scanf("%d", &a);
+        printf("%d", DPS(a));
+        if(t >= 1) printf(" ");
+    }
+    printf("\n");
+    return 0;
+}
