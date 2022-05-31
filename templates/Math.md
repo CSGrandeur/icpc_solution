@@ -471,39 +471,44 @@ int GaussElMod(int eqn, int xn, int mod)
 ### 线性规划
 
 #### 单纯形法
+`Init` `n` 为变量数， `m` 为方程数，对应初始化`a,b,c`时也要注意
+
+`A[]`与`B[]`表示原始列和基的序号，用于记录换入换出，注意初始化
 
 ```cpp
-// Init n 为变量数， m 为方程数，对应初始化a,b,c时也要注意
 const int maxn = 1e3 + 10;
 const int maxm = 100;
 const double inf = 1e20;
+
 struct Simplex
 {
     // 标准型：min Σcx, s.t. ax=b, x>=0
     double a[maxm][maxn], b[maxm], c[maxn], z;
+    int B[maxn], A[maxn];
     int n, m;
     void Init(int n_, int m_)
     {
         n = n_, m = m_;
         memset(c, 0, sizeof(c));
         memset(a, 0, sizeof(a));
+        memset(B, 0, sizeof(B));
+        memset(A, 0, sizeof(A));
         z = 0;
     }
     void Pivot(int k, int l)
     {
+        std::swap(B[l], A[k]);
         b[l] /= a[l][k];
         for(int j = 0; j < n; j ++)
             if(j != k) a[l][j] /= a[l][k];
         a[l][k] = 1 / a[l][k];
         for(int i = 0; i < m; i ++)
         {
-            if(i != l && fabs(a[i][k]) > 0)
-            {
-                b[i] -= a[i][k] * b[l];
-                for(int j = 0; j < n; j ++)
-                    if(j != k) a[i][j] -= a[i][k] * a[l][j];
-                a[i][k] = -a[i][k] * a[l][k];
-            }
+            if(i == l) continue;
+            b[i] -= a[i][k] * b[l];
+            for(int j = 0; j < n; j ++)
+                if(j != k) a[i][j] -= a[i][k] * a[l][j];
+            a[i][k] = -a[i][k] * a[l][k];
         }
         z += c[k] * b[l];
         for(int j = 0; j < n; j ++)
@@ -514,27 +519,23 @@ struct Simplex
     {
         while(true)
         {
-            int k = 0, l = 0;
+            int k = -1, l = -1;
             double minc = inf;
             for(int i = 0; i < n; i ++)
-            {
                 if(c[i] < minc)
                 {
                     minc = c[i];
                     k = i;
                 }
-            }
-            if(minc >= 0) return z;
+            if(minc > -eps) return z;
             double minba = inf;
             for(int i = 0; i < m; i ++)
-            {
-                if(a[i][k] > 0 && minba > b[i] / a[i][k])
+                if(a[i][k] > eps && minba > b[i] / a[i][k])
                 {
                     minba = b[i] / a[i][k];
                     l = i;
                 }
-            }
-            if(minba == inf) return inf;
+            if(l == -1) return inf;
             Pivot(k, l);
         }
     }
