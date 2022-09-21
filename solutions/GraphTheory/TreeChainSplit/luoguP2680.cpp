@@ -45,7 +45,7 @@ struct FSGraph
 void FSGraph::TreeChainBuild(int rt_)
 {
     rt = rt_;
-    dcnt = 0;
+    dcnt = 1;
     int n_ = fst.size() + 10;
     son.resize(n_);
     siz.resize(n_);
@@ -54,7 +54,9 @@ void FSGraph::TreeChainBuild(int rt_)
     top.resize(n_);
     dfn.resize(n_);
     rnk.resize(n_);
-    fa[rt] = -1;
+    dep[rt] = 1;
+    fa[rt] = 0;
+    top[0] = 0;
     TreeChainDFS1(rt);
     TreeChainDFS2(rt, rt);
 }
@@ -241,8 +243,8 @@ void UpdateEdgeMax(int a, int b, int plen)
         chl.push_back(Chain(fg.dfn[a] + 1, fg.dfn[b] + 1));
     if(chl.empty()) return;
     std::sort(chl.begin(), chl.end());
-    stmx.UpdateRange(1, 0, stmx.segN, 1, chl[0].l, plen);  // dfn[root]为0，root没有对应的边
-    stmx.UpdateRange(1, 0, stmx.segN, chl.back().r, n, plen);
+    stmx.UpdateRange(1, 0, stmx.segN, 1, chl[0].l, plen);  // dfn[root]为1，root没有对应的边
+    stmx.UpdateRange(1, 0, stmx.segN, chl.back().r, n + 1, plen);
     for(int i = 1; i < chl.size(); i ++)
         stmx.UpdateRange(1, 0, stmx.segN, chl[i - 1].r, chl[i].l, plen);
 }
