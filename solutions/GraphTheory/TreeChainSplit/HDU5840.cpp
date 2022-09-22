@@ -109,7 +109,6 @@ struct SegNode
     SegNode(){Init();}
     SegNode(int l_, int r_){Init(l_, r_);}
 };
-const int maxsn = 5e6;
 std::vector<SegNode> sn;
 struct SegTree
 {
