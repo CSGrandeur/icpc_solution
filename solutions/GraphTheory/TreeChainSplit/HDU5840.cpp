@@ -59,7 +59,7 @@ void FSGraph::TreeChainBuild(int rt_)
     dfn.resize(n_);
     rnk.resize(n_);
     dep[rt] = 1;
-    fa[rt] = rt;
+    fa[rt] = 0;
     top[0] = 0;
     TreeChainDFS1(rt);
     TreeChainDFS2(rt, rt);
