@@ -26,7 +26,6 @@ void DbEdge(int u_, int v_, int w_)
 ## 封装前向星建图
 
 ```cpp
-
 struct FSGraph
 {
     std::vector<int> fst, nex, u, v, w;
@@ -551,18 +550,21 @@ int Hungarian()
 struct FSGraph
 {
     // fst, nex... etc.
+    
     std::vector<int> son, siz, dep, fa, top, dfn, rnk;
     int rt, dcnt;
     void TreeChainBuild(int rt_);
     void TreeChainDFS1(int now);
     void TreeChainDFS2(int now, int t);
+    std::vector<int> vw;
     int LCA(int a, int b);
+    void ValueBindNode(std::vector<int> &pr);
 };
 
 void FSGraph::TreeChainBuild(int rt_)
 {
     rt = rt_;
-    dcnt = 0;
+    dcnt = 1;
     int n_ = fst.size() + 10;
     son.resize(n_);
     siz.resize(n_);
@@ -571,7 +573,9 @@ void FSGraph::TreeChainBuild(int rt_)
     top.resize(n_);
     dfn.resize(n_);
     rnk.resize(n_);
-    fa[rt] = -1;
+    dep[rt] = 1;
+    fa[rt] = 0;
+    top[0] = 0;
     TreeChainDFS1(rt);
     TreeChainDFS2(rt, rt);
 }
@@ -593,9 +597,9 @@ void FSGraph::TreeChainDFS1(int now)
 void FSGraph::TreeChainDFS2(int now, int t)
 {
     top[now] = t;
-    dcnt ++;
     dfn[now] = dcnt;
     rnk[dcnt] = now;
+    dcnt ++;
     if(son[now] == -1) return;
     TreeChainDFS2(son[now], t);
     for(int i = fst[now]; i != -1; i = nex[i])
@@ -611,5 +615,66 @@ int FSGraph::LCA(int a, int b)
         else b = fa[top[b]];
     }
     return dep[a] < dep[b] ? a : b;
+}
+void FSGraph::ValueBindNode(std::vector<int> &pr)
+{
+    vw.resize(dcnt + 10);
+    for(int i = 1; i < dfn.size(); i ++)
+        vw[dfn[i]] = pr[i];
+}
+```
+
+### 树链剖分典型路径处理
+
+#### 直接处理路径上线段树
+
+以区间更新为例。
+
+如果是处理边，`while`之后的处理需加 `if(fg.dfn[a] != fg.dfn[b])`，且区间为 `[fg.dfn[a] + 1, fg.dfn[b] + 1)`.
+
+如果是处理节点，则直接执行，且处理区间为`[fg.dfn[a], fg.dfn[b] + 1)`.
+
+```cpp
+void UpdatePath(int a, int b, int k)
+{
+    while(fg.top[a] != fg.top[b])
+    {
+        if(fg.dep[fg.top[a]] < fg.dep[fg.top[b]])
+            std::swap(a, b);
+        sts.UpdateRange(-2, fg.dfn[fg.top[a]], fg.dfn[a] + 1, k);
+        a = fg.fa[fg.top[a]];
+    }
+    if(fg.dfn[a] > fg.dfn[b]) std::swap(a, b);
+    sts.UpdateRange(-2, fg.dfn[a], fg.dfn[b] + 1, k);
+}
+```
+
+#### 起点至终点考虑方向
+
+以区间查询且区分左右地合并为例
+
+如果是处理边，`while`之后的处理需加 `if(fg.dfn[a] != fg.dfn[b])`，且区间为 `[fg.dfn[a] + 1, fg.dfn[b] + 1)`.
+
+如果是处理节点，则直接执行，且处理区间为`[fg.dfn[a], fg.dfn[b] + 1)`.
+
+```cpp
+int QueryPath(int a, int b)
+{
+    bool lflag = true;
+    SegNode lseg, rseg;
+    while(fg.top[a] != fg.top[b])
+    {
+        if(fg.dep[fg.top[a]] < fg.dep[fg.top[b]])
+            std::swap(a, b), lflag ^= 1;
+        SegNode &nowseg = lflag ? lseg : rseg;
+        nowseg = sts.SegMerge(sts.Query(-2, fg.dfn[fg.top[a]], fg.dfn[a] + 1), nowseg);
+        a = fg.fa[fg.top[a]];
+    }
+    if(fg.dfn[a] > fg.dfn[b]) std::swap(a, b);
+    else lflag ^= 1;
+    
+    SegNode &nowseg = lflag ? lseg : rseg;
+    nowseg = sts.SegMerge(sts.Query(-2, fg.dfn[a], fg.dfn[b] + 1), nowseg);
+    return lseg.x + rseg.x - (lseg.lc == rseg.lc);
 }
 ```

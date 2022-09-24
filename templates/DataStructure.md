@@ -535,6 +535,8 @@ int Query(int now, int left, int right, int up, int down, int sl, int sr, int su
 
 线段树灵活性很强，重在理解和使用，无法固定模板，这里仅以 区间加等差数列lasy标记、统计区间和 为例。
 
+#### 预分配内存线段树
+
 ```cpp
 struct SegTree
 {
@@ -604,6 +606,127 @@ struct SegTree
     }
 };
 ```
+
+#### 动态开点线段树
+
+以区间连续颜色种类数为例
+
+```cpp
+struct SegNode
+{
+    int lp, rp, l, r, x, lc, rc, lz;
+    void Init(){x = lz = 0, lc = rc = -1, lp = rp = -1;}
+    void Init(int l_, int r_){Init(); l = l_, r = r_;}
+    SegNode(){Init();}
+    SegNode(int l_, int r_){Init(l_, r_);}
+};
+std::vector<SegNode> sn;
+struct SegTree
+{
+    int rt, segN;
+    void Init(int n)
+    {
+        segN = n + 10;
+        rt = sn.size();
+        sn.push_back(SegNode(0, segN));
+    }
+    void CheckNodeP(int &tp, int l, int r)
+    {
+        if(tp != -1) return;
+        tp = sn.size();
+        sn.push_back(SegNode(l, r));
+    }
+    void Build(int now, std::vector<int> &vw)
+    {
+        if(now == -2) now = this->rt;
+        if(sn[now].l == sn[now].r - 1)
+        {
+            if(vw.size() > sn[now].l)
+                sn[now].x = 1, sn[now].lc = sn[now].rc = vw[sn[now].l];
+            return;
+        }
+        int mid = sn[now].l + sn[now].r >> 1;
+        if(sn[now].l < mid)
+        {
+            CheckNodeP(sn[now].lp, sn[now].l, mid);
+            Build(sn[now].lp, vw);
+        }
+        if(sn[now].r > mid)
+        {
+            CheckNodeP(sn[now].rp, mid, sn[now].r);
+            Build(sn[now].rp, vw);
+        }
+        PushUp(now);
+    }
+    void SetNode(int now, int lz)
+    {
+        sn[now].x = 1;
+        sn[now].lc = sn[now].rc = sn[now].lz = lz;
+    }
+    void PushDown(int now)
+    {
+        if(sn[now].l == sn[now].r - 1 || !sn[now].lz) return;
+        if(sn[now].lp != -1)
+            SetNode(sn[now].lp, sn[now].lz);
+        if(sn[now].rp != -1)
+            SetNode(sn[now].rp, sn[now].lz);
+        sn[now].lz = 0;
+    }
+    void PushUp(int now)
+    {
+        sn[now].x = 0;
+        if(sn[now].lp != -1) 
+        {
+            sn[now].x += sn[sn[now].lp].x;
+            sn[now].lc = sn[sn[now].lp].lc;
+        }
+        if(sn[now].rp != -1)
+        {
+            sn[now].x += sn[sn[now].rp].x;
+            sn[now].rc = sn[sn[now].rp].rc;
+        }
+        if(sn[now].lp != -1 && sn[now].rp != -1 && sn[sn[now].lp].rc == sn[sn[now].rp].lc)
+            sn[now].x --;
+        if(sn[now].x < 0) sn[now].x = 0;
+    }
+    void UpdateRange(int now, int l, int r, int k)
+    {
+        if(now == -2) now = this->rt;
+        if(sn[now].l >= l && sn[now].r <= r)
+        {
+            SetNode(now, k);
+            return;
+        }
+        PushDown(now);
+        int mid = sn[now].l + sn[now].r >> 1;
+        if(l < mid && sn[now].lp != -1) UpdateRange(sn[now].lp, l, r, k);
+        if(r > mid && sn[now].rp != -1) UpdateRange(sn[now].rp, l, r, k);
+        PushUp(now);
+    }
+    SegNode SegMerge(const SegNode &ls, const SegNode &rs)
+    {
+        if(ls.lc == -1) return rs;
+        if(rs.lc == -1) return ls;
+        SegNode s(-1, -1);
+        s.x = rs.x + ls.x - (rs.lc == ls.rc);
+        s.lc = ls.lc;
+        s.rc = rs.rc;
+        return s;
+    }
+    SegNode Query(int now, int l, int r)
+    {
+        if(now == -2) now = this->rt;
+        if(sn[now].l >= l && sn[now].r <= r) return sn[now];
+        PushDown(now);
+        int mid = sn[now].l + sn[now].r >> 1;
+        SegNode ls, rs;
+        if(l < mid && sn[now].lp != -1) ls = Query(sn[now].lp, l, r);
+        if(r > mid && sn[now].rp != -1) rs = Query(sn[now].rp, l, r);
+        return SegMerge(ls, rs);
+    }
+};
+```
+
 
 ## 可持久化数据结构
 
