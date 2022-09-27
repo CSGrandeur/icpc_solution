@@ -21,25 +21,25 @@ struct SplayTree
     {
         sn[x].sz = sn[sn[x].ch[0]].sz + sn[sn[x].ch[1]].sz + sn[x].cnt;
     }
-    int Sonlr(int x) {return x == sn[sn[x].fa].ch[1];}
+    int Ws(int x) {return x == sn[sn[x].fa].ch[1];}
     void Clear(int x) {sn[x].Init();}
     void Rotate(int x)
     {
-        int y = sn[x].fa, z = sn[y].fa, chk = Sonlr(x);
+        int y = sn[x].fa, z = sn[y].fa, chk = Ws(x);
         sn[y].ch[chk] = sn[x].ch[chk ^ 1];
         if(sn[x].ch[chk ^ 1]) sn[sn[x].ch[chk ^ 1]].fa = y;
         sn[x].ch[chk ^ 1] = y;
         sn[y].fa = x;
         sn[x].fa = z;
         if(z) sn[z].ch[y == sn[z].ch[1]] = x;
-        Maintain(x);
         Maintain(y);
+        Maintain(x);
     }
-    void Splay(int x)
+    void Splay(int x, int target=0)
     {
-        for(int f = sn[x].fa; f = sn[x].fa, f; Rotate(x))
-            if(sn[f].fa) Rotate(Sonlr(x) == Sonlr(f) ? f : x);
-        rt = x;
+        for(int y = sn[x].fa; (y = sn[x].fa) != target; Rotate(x))
+            if(sn[y].fa != target) Rotate(Ws(x) == Ws(y) ? y : x);
+        if(!target) rt = x;
     }
     int Add(int k, int fa=0)
     {
