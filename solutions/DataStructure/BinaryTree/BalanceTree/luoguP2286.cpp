@@ -1,6 +1,6 @@
 // difficulty: 2
-// 【模板】普通平衡树
-// 模板题
+// [HNOI2004]宠物收养场
+// 可作为Splay的 Pre、Next、Delete 练习
 
 #include<cstdio>
 #include<algorithm>
@@ -9,25 +9,34 @@
 
 struct SplayNode
 {
-    int ch[2], fa, val, cnt, sz;
-    void Init() {ch[0] = ch[1] = fa = val = cnt = sz = 0;}
+    int ch[2], fa, val, cnt, sz, lz;
+    void Init() {ch[0] = ch[1] = fa = val = cnt = sz = lz = 0;}
     SplayNode(){Init();}
 };
-std::vector<SplayNode> sn;  // 注意预留 sn[0] 为空节点。 sn.clear(), sn.push_back(SplayNode());
 struct SplayTree
 {
-    int rt, tot;
+    // 注意预留 sn[0] 为空节点。 sn.clear(), sn.push_back(SplayNode());
+    std::vector<SplayNode> sn;
+    int rt, tot, kind;
+    void Init(){rt = tot = 0; sn.clear(); sn.push_back(SplayNode());}
+    SplayTree(){Init();}
     void Maintain(int x)
     {
         sn[x].sz = sn[sn[x].ch[0]].sz + sn[sn[x].ch[1]].sz + sn[x].cnt;
+    }
+    inline void PushDown(int x)
+    {
+        // Nothing
     }
     int Ws(int x) {return x == sn[sn[x].fa].ch[1];}
     void Clear(int x) {sn[x].Init();}
     void Rotate(int x)
     {
-        int y = sn[x].fa, z = sn[y].fa, chk = Ws(x);
+        int y = sn[x].fa, z = sn[y].fa;
+        PushDown(y), PushDown(x);
+        int chk = Ws(x);
         sn[y].ch[chk] = sn[x].ch[chk ^ 1];
-        if(sn[x].ch[chk ^ 1]) sn[sn[x].ch[chk ^ 1]].fa = y;
+        if(sn[y].ch[chk]) sn[sn[y].ch[chk]].fa = y;
         sn[x].ch[chk ^ 1] = y;
         sn[y].fa = x;
         sn[x].fa = z;
@@ -85,6 +94,45 @@ struct SplayTree
             }
         }
     }
+    int KthNode(int k)
+    {
+        int now = rt;
+        while(true)
+        {
+            PushDown(now);
+            if(sn[now].ch[0] && k <= sn[sn[now].ch[0]].sz)
+                now = sn[now].ch[0];
+            else
+            {
+                k -= sn[now].cnt + sn[sn[now].ch[0]].sz;
+                if(k <= 0)
+                {
+                    Splay(now);
+                    return now;
+                }
+                now = sn[now].ch[1];
+            }
+        }
+        return 0;
+    }
+    int Pre(int cur=0)
+    {
+        if(!cur) cur = sn[rt].ch[0];
+        else cur = sn[cur].ch[0];
+        if(!cur) return cur;
+        while(sn[cur].ch[1]) cur = sn[cur].ch[1];
+        Splay(cur);
+        return cur;
+    }
+    int Nxt(int cur=0)
+    {
+        if(!cur) cur = sn[rt].ch[1];
+        else cur = sn[cur].ch[1];
+        if(!cur) return cur;
+        while(sn[cur].ch[0]) cur = sn[cur].ch[0];
+        Splay(cur);
+        return cur;
+    }
     int Rank(int k)
     {
         int ret = 0, cur = rt;
@@ -105,44 +153,6 @@ struct SplayTree
             }
         }
         return 0;
-    }
-    int Kth(int k)
-    {
-        int cur = rt;
-        while(true)
-        {
-            if(sn[cur].ch[0] && k <= sn[sn[cur].ch[0]].sz)
-                cur = sn[cur].ch[0];
-            else
-            {
-                k -= sn[cur].cnt + sn[sn[cur].ch[0]].sz;
-                if(k <= 0)
-                {
-                    Splay(cur);
-                    return sn[cur].val;
-                }
-                cur = sn[cur].ch[1];
-            }
-        }
-        return 0;
-    }
-    int RtPre(int cur=0)
-    {
-        if(!cur) cur = sn[rt].ch[0];
-        else cur = sn[cur].ch[0];
-        if(!cur) return cur;
-        while(sn[cur].ch[1]) cur = sn[cur].ch[1];
-        Splay(cur);
-        return cur;
-    }
-    int RtNxt(int cur=0)
-    {
-        if(!cur) cur = sn[rt].ch[1];
-        else cur = sn[cur].ch[1];
-        if(!cur) return cur;
-        while(sn[cur].ch[0]) cur = sn[cur].ch[0];
-        Splay(cur);
-        return cur;
     }
     void Del(int k)
     {
@@ -168,7 +178,7 @@ struct SplayTree
             Clear(cur);
             return;
         }
-        int cur = rt, x = RtPre();
+        int cur = rt, x = Pre();
         sn[sn[cur].ch[1]].fa = x;
         sn[x].ch[1] = sn[cur].ch[1];
         Clear(cur);
@@ -178,23 +188,37 @@ struct SplayTree
 SplayTree spt;
 int main()
 {
-    int n, opt, x;
+    int n, res, a, b;
     while(scanf("%d", &n) != EOF)
     {
-        sn.clear();
-        sn.push_back(SplayNode());
+        spt.Init();
+        res = 0;
         for(int i = 0; i < n; i ++)
         {
-            scanf("%d%d", &opt, &x);
-            if(opt == 1) spt.Insert(x);
-            else if(opt == 2) spt.Del(x);
-            else if(opt == 3) printf("%d\n", spt.Rank(x));
-            else if(opt == 4) printf("%d\n", spt.Kth(x));
-            else if(opt == 5)
-                spt.Insert(x), printf("%d\n", sn[spt.RtPre()].val), spt.Del(x);
-            else    
-                spt.Insert(x), printf("%d\n", sn[spt.RtNxt()].val), spt.Del(x);
+            scanf("%d%d", &a, &b);
+            if(spt.sn[spt.rt].sz == 0 || spt.kind == a)
+            {
+                spt.Insert(b);
+                spt.kind = a;
+                continue;
+            }
+            spt.Insert(b);
+            int bnode = spt.rt, chs;
+            if(spt.sn[bnode].cnt == 1)
+            {
+                int pre = spt.Pre(bnode), nxt = spt.Nxt(bnode);
+                if(!pre) chs = nxt;
+                if(!nxt) chs = pre;
+                if(pre && nxt)
+                    chs = abs(spt.sn[pre].val - b) <= abs(spt.sn[nxt].val - b) ? pre : nxt;
+            }
+            else
+                chs = bnode;
+            res = (1LL * res + abs(spt.sn[chs].val - b)) % 1000000;
+            spt.Del(b);
+            spt.Del(spt.sn[chs].val);
         }
+        printf("%d\n", res);
     }
     return 0;
 }
