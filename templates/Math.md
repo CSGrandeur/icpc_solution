@@ -134,7 +134,7 @@ void SetPrime()
 
 ```cpp
 bool isPrime[maxn];
-int prime[maxm], ptp
+int prime[maxm], ptp;
 void SetPrime()
 {
     ptp = 0;
