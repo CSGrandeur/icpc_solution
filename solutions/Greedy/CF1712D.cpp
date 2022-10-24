@@ -1,0 +1,59 @@
+// difficulty: 4
+// Empty Graph
+// 直径只会在 （1）$2a_{i}$ 和 （2）$min(a_{i}, a_{i+1})$ 中产生，即要么走临边，要么找一个跳板走两步
+// 二分答案方法：判断依据是是否消灭了所有小于mid的以上两种情况
+// 贪心方法：
+// 对于（2），只要有一个点赋值为最大，至多再改一个点就能消灭（2）
+// 对于（1），从小到达改点
+// 那么可以先从小到大改 `k-1` 个点，最后一次修改机会枚举修改每个点的情况
+// 本代码为二分答案方法
+#include<cstdio>
+#include<cstdlib>
+#include<cstring>
+#include<vector>
+#include<algorithm>
+const int maxn = 1e5 + 10;
+int a[maxn], b[maxn], t, n, k;
+bool cmp(const int &x, const int &y){return a[x] < a[y];}
+bool Judge(int mid)
+{
+    if(a[b[k]] << 1 < mid) return false;
+    int i, j;
+    for(i = k - 1, j = 0; i >= 0 && a[b[i]] << 1 >= mid && j < 2; i --, j ++);
+    if(j >= 2) return true;
+    if(j == 1 && (i >= 0 || a[b[n - 1]] >= mid)) return true;
+    
+    std::vector<bool> flg(n + 10, 0);
+    for(int i = 0; i < k; i ++)
+    {
+        if(flg[b[i] + 1] || b[i] && flg[b[i] - 1]) return true;
+        flg[b[i]] = true;
+    }
+    for(int i = n - 1; i >= k && a[b[i]] >= mid; i --)
+    {
+        if(flg[b[i] + 1] || b[i] && flg[b[i] - 1]) return true;
+        flg[b[i]] = true;
+    }
+
+    return false;
+}
+int main()
+{
+    for(scanf("%d", &t); t --;)
+    {
+        scanf("%d%d", &n, &k);
+        for(int i = 0; i < n; i ++)
+            scanf("%d", &a[i]), b[i] = i;
+        if(k == n) {printf("1000000000\n"); continue;}
+        std::sort(b, b + n, cmp);
+        int left = 0, right = 1e9 + 1;
+        while(left < right - 1)
+        {
+            int mid = left + right >> 1;
+            if(Judge(mid)) left = mid;
+            else right = mid;
+        }
+        printf("%d\n", left);
+    }
+    return 0;
+}

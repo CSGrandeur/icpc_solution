@@ -43,8 +43,9 @@ struct FSGraph
         w.push_back(w_);
         fst[u_] = nex.size() - 1;
     }
-    void DbEdge(int u_, int v_, int w_=1, int w2_=1)
+    void DbEdge(int u_, int v_, int w_=1, int w2_=-0x4f4f4f4f)
     {
+        if(w2_ == -0x4f4f4f4f) w2_ = w_;
         AddEdge(u_, v_, w_);
         AddEdge(v_, u_, w2_);
     }
