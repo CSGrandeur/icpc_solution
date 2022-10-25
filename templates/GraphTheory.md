@@ -239,7 +239,7 @@ bool DiBFS()
     queue<int> q;
     memset(ly, -1, sizeof(ly));
     q.push(so);
-    ly[so] = 0;
+    ly[so] = 1;
     while(!q.empty())
     {
         int now = q.front();
