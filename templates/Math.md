@@ -175,17 +175,18 @@ int Euler(int n)
 ### 欧拉函数打表
 
 ```cpp
-int el[maxn];   // 累加求和的话注意 long long
-void EulerList()
+std::vector<int> el; // 累加求和的话注意 long long
+void EulerList(int mxn)
 {
+    el.resize(mxn + 10);
     el[1] = 1;
-    for(int i = 2; i < maxn; i ++)
+    for(int i = 2; i <= mxn; i ++)
         el[i] = i;
-    for(int i = 2; i < maxn; i ++)
+    for(int i = 2; i <= mxn; i ++)
     {
-        if(el[i] == i)
-            for(int j = i; j < maxn; j += i)
-                el[j] = el[j] / i * (i - 1);
+        if(el[i] != i) continue;
+        for(int j = i; j <= mxn; j += i)
+            el[j] = el[j] / i * (i - 1);
     }
 }
 ```
