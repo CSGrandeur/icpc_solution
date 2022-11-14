@@ -16,7 +16,7 @@
 const int maxn = 5e4 + 10;
 int t, a, b, c, d, k;
 std::vector<int> mu, prm, mup;
-void GetMu(int mxn) {
+void MuList(int mxn) {
     mu.resize(mxn + 10); mup.resize(mxn + 10);
     std::fill(mu.begin(), mu.end(), -2);
     mu[1] = mup[1] = 1;
@@ -45,7 +45,7 @@ int Calc(int a, int b)
 }
 int main()
 {
-    GetMu(maxn);
+    MuList(maxn);
     for(scanf("%d", &t); t --; )
     {
         scanf("%d%d%d%d%d", &a, &b, &c, &d, &k);
