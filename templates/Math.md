@@ -1,6 +1,5 @@
 # 数学
 
-
 ## 组合数
 
 ### 组合数基本递推
@@ -20,7 +19,28 @@ void ComList()
 }
 ```
 
+### 莫比乌斯打表
 
+```cpp
+std::vector<int> mu, prm, mup;
+void MuList(int mxn) {
+    mu.resize(mxn + 10); mup.resize(mxn + 10);
+    std::fill(mu.begin(), mu.end(), -2);
+    mu[1] = mup[1] = 1;
+    prm.clear();
+    for (int i = 2; i <= mxn; i ++) {
+        if (mu[i] == -2) prm.push_back(i), mu[i] = -1;
+        for (int j = 0; j < prm.size() && i * prm[j] <= mxn; j ++) {
+            if(i % prm[j] == 0) {
+                mu[i * prm[j]] = 0;
+                break;
+            }
+            mu[i * prm[j]] = -mu[i];
+        }
+    }
+    for(int i = 2; i <= mxn; i ++) mup[i] = mup[i - 1] + mu[i];
+}
+```
 
 ## 数列
 

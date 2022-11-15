@@ -2,13 +2,13 @@
 
 转换成最大公约数求和，从而变为枚举`n`的约数的问题.
 
-$
+$$
 \sum_{i}^{n} LCM(i,n) \\
 =\sum_{i}^{n} \frac{i*n}{GCD(i,n)} \\
 =n\sum_{d|n} \sum_{i}^{n} \frac{i}{d}[GCD(i,n)=d] \\
 =n\sum_{d|n} \sum_{j=1}^{n/d}j[GCD(j,n/d)=1] \\
 =n\sum_{d|n} \phi(\frac{n}{d})\frac{n}{2d}
-$ 
+$$
 
 $\sum_{j=1}^{n/d}j[GCD(j,n/d)=1]$ 在求 $n/d$ 内与 $n/d$ 互质的数的和.
 
