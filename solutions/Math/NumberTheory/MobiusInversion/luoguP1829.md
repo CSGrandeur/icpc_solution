@@ -65,3 +65,56 @@ $
 - $g(a,b)$ 可以 `O(1)` 计算
 - $s(a,b)$ 可以数论分块
 - $Solve(n,m)$ 也可以数论分块
+
+
+```cpp
+#include<cstdio>
+#include<cstring>
+#include<cstdlib>
+#include<vector>
+const int mod = 20101009;
+int n, m;
+std::vector<int> mu, prm, mup;
+void MuList(int mxn) {
+    mu.resize(mxn + 10); mup.resize(mxn + 10);
+    std::fill(mu.begin(), mu.end(), -2);
+    mu[1] = mup[1] = 1;
+    prm.clear();
+    for (int i = 2; i <= mxn; i ++) {
+        if (mu[i] == -2) prm.push_back(i), mu[i] = -1;
+        for (int j = 0; j < prm.size() && i * prm[j] <= mxn; j ++) {
+            if(i % prm[j] == 0) {
+                mu[i * prm[j]] = 0;
+                break;
+            }
+            mu[i * prm[j]] = -mu[i];
+        }
+    }
+    for(int i = 2; i <= mxn; i ++) mup[i] = (mup[i - 1] + 1LL * mu[i] * i * i % mod) % mod;
+}
+inline int G(int a, int b){return (1LL * (b + 1) * b / 2 % mod) * (1LL * (a + 1) * a / 2 % mod) % mod;}
+int S(int a, int b){
+    int ret = 0;
+    for(int i = 1, j; i <= a; i = j + 1){
+        j = std::min(a / (a / i), b / (b / i));
+        ret = (ret + 1LL * (mup[j] - mup[i - 1]) % mod * G(a / i, b / i) % mod) % mod;
+    }
+    return ret;
+}
+int Solve(int n, int m)
+{
+    int ret = 0;
+    if(n > m) std::swap(n, m);
+    for(int i = 1, j; i <= n; i = j + 1){
+        j = std::min(n / (n / i), m / (m / i));
+        ret = (ret + 1LL * (i + j) * (j - i + 1) / 2 % mod * S(n / i, m / i) % mod) % mod;
+    }
+    return (ret + mod) % mod;
+}
+int main(){
+    MuList(1e7 + 1);
+    while(scanf("%d%d", &n, &m) != EOF)
+        printf("%d\n", Solve(n, m));
+    return 0;
+}
+```
