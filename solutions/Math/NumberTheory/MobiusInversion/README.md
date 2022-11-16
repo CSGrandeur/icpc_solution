@@ -28,4 +28,17 @@
 1. $\sum\limits_{d|i}^{n} i$ 可以换元消除约束条件 $\sum\limits_{i^{'}}^{\lfloor \frac{n}{d}\rfloor}i^{'}$
 1. 求和提前，式中加“`[]`”条件： $\sum\limits_{x|i}\sum\limits_{y|j}\sum\limits_{p|gcd(x,y)}\mu(p)=\sum\limits_{p=1}^{min(i,j)}\sum\limits_{x|i}\sum\limits_{y|j}[p|gcd(x,y)]\mu(p)$，相当于把内层`for`循环提到外层，内层则增加了`if`.
 1. $\sum\sum [gcd(i,j)=p]$ 这类问题适合莫反，设$f(n)=\sum\sum[gcd(i,j)=n]$，则$g(n)=\sum\limits_{n|d}f(d)$，从而莫反得到$f(n)=\sum\limits_{n|d}\mu(\lfloor \frac{d}{n} \rfloor)g(d)$
-1. 
+
+
+### 莫反套路练习
+
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}[gcd(i,j)=1], (n<m)$
+    解：$\sum\limits_{d=1}^{n}\mu(d)\cdot\lfloor\frac{n}{d}\rfloor \cdot \lfloor\frac{m}{d}\rfloor$，然后预处理$\mu$函数前缀和以及数论分块. 
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}[gcd(i,j)=k], (n<m)$
+    解：$\sum\limits_{i=1}^{\lfloor \frac{n}{k}\rfloor}\sum\limits_{j=1}^{\lfloor \frac{m}{k}\rfloor}[gcd(i,j)=1], (n<m)$，然后同`1`.
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}ij[gcd(i,j)=k], (n<m)$
+    解：$k^{2}\cdot \sum\limits_{d=1}^{\lfloor \frac{n}{k}\rfloor}\mu(d)\cdot d^2 \cdot\sum\limits_{i=1}^{\lfloor\frac{n}{kd}\rfloor}i \cdot \sum\limits_{j=1}^{\lfloor\frac{m}{kd}\rfloor}j$，后两个和式是等差数列求和，前面的一样预处理前缀和，整体上数论分块.
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}lcm(i,j), (n<m)$
+    解：$\sum\limits_{d=1}\limits^{n} d\sum\limits_{t=1}\limits^{\lfloor \frac{n}{d} \rfloor}t^2\mu(t) \sum\limits_{i}\limits^{\lfloor \frac{n}{td} \rfloor }\sum\limits_{j}\limits^{\lfloor \frac{m}{td} \rfloor } ij $，见 [luoguP1829`[国家集训队]Crash的数字表格 / JZPTAB`](./luoguP1829.md)
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}d(i\cdot j), (n<m)$，其中$d(k)$表示$k$的约数个数
+    解：$\sum\limits_{d}^{\min(n,m)}\mu(d)(\sum_{x=1}^{\lfloor \frac{n}{d} \rfloor}\lfloor \frac{n}{xd} \rfloor)(\sum_{y=1}^{\lfloor \frac{m}{d} \rfloor}\lfloor \frac{m}{yd} \rfloor)$，见[luoguP3327`[SDOI2015]约数个数和`](./luoguP3327.md)
