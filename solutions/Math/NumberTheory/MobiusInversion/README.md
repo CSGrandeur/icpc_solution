@@ -27,5 +27,5 @@
 
 1. $\sum\limits_{d|i}^{n} i$ 可以换元消除约束条件 $\sum\limits_{i^{'}}^{\lfloor \frac{n}{d}\rfloor}i^{'}$
 1. 求和提前，式中加“`[]`”条件： $\sum\limits_{x|i}\sum\limits_{y|j}\sum\limits_{p|gcd(x,y)}\mu(p)=\sum\limits_{p=1}^{min(i,j)}\sum\limits_{x|i}\sum\limits_{y|j}[p|gcd(x,y)]\mu(p)$，相当于把内层`for`循环提到外层，内层则增加了`if`.
-1. $\sum\sum [gcd(i,j)=p]$ 这类问题适合莫反，设$f(n)=\sum\sum[gcd(i,j)=n]$，则$g(n)=\sum\limits_{n|d}f(d)$，从而莫反得到$f(n)=\sum\limits_{n|d}\mu(\lfloor \frac{d}{n} \rfloor)g(d)$
-1. 
+1. $\sum\sum [gcd(i,j)=p]$ 这类问题适合莫反，设$f(x)=\sum\sum[gcd(i,j)=x]$，则$g(x)=\sum\limits_{x|d}f(d)$，从而莫反得到$f(x)=\sum\limits_{x|d}\mu(\lfloor \frac{d}{x} \rfloor)g(d)$
+1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}\sum\limits_{x|d}[gcd(i,j)=d]=\lfloor \frac{n}{d} \rfloor \lfloor \frac{m}{d} \rfloor$，即最大公约数为$x$的所有倍数的个数.
