@@ -44,4 +44,3 @@
     解：$\sum\limits_{d=1}\limits^{n} d\sum\limits_{t=1}\limits^{\lfloor \frac{n}{d} \rfloor}t^2\mu(t) \sum\limits_{i}\limits^{\lfloor \frac{n}{td} \rfloor }\sum\limits_{j}\limits^{\lfloor \frac{m}{td} \rfloor } ij $，见 [luoguP1829`[国家集训队]Crash的数字表格 / JZPTAB`](./luoguP1829.md)
 1. $\sum\limits_{i=1}^{n}\sum\limits_{j=1}^{m}d(i\cdot j), (n<m)$，其中$d(k)$表示$k$的约数个数
     解：$\sum\limits_{d}^{\min(n,m)}\mu(d)(\sum_{x=1}^{\lfloor \frac{n}{d} \rfloor}\lfloor \frac{n}{xd} \rfloor)(\sum_{y=1}^{\lfloor \frac{m}{d} \rfloor}\lfloor \frac{m}{yd} \rfloor)$，见[luoguP3327`[SDOI2015]约数个数和`](./luoguP3327.md)
->>>>>>> 282793e1e19bb13cb82a298806c286b90af98e27
