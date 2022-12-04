@@ -265,9 +265,7 @@ LL ExGCD(LL a, LL b, LL &x, LL &y)
     x = y, y = t - a / b * x;
     return d; 
 }
-```
 
-```cpp
 int ExGcdInv(int a, int mod)
 {
     LL x, y;
@@ -284,19 +282,38 @@ int ExGcdInv(int a, int mod)
 LL Inv(LL a, LL mod)
 {
     if(a == 1) return 1;
-    return (mod - mod / a) * Inv(mod % a) % mod;
+    return (mod - mod / a) * Inv(mod % a, mod) % mod;
 }
 ```
 
 ### 逆元打表
 
 ```cpp
-int invList[maxn];
-void GetInvList(int mod)
-{
+std::vector<int> invList;
+void GetInvList(int mxn, int mod) {
+    invList.resize(mxn + 10);
     invList[1] = 1;
-    for(int i = 2; i < maxn; i ++)
+    for(int i = 2; i < mxn; i ++)
         invList[i] = 1LL * (mod - mod / i) * invList[mod % i] % mod;
+}
+```
+
+### 阶乘逆元打表
+
+小技巧：$n!$的逆元相当于 $\frac{1}{n!}$的效果，而$\frac{1}{n!}*n$就是$(n-1)!$的逆元，可以借此减少逆元算法的调用.
+
+```cpp
+void GetFacList(int mxn, int mod) {
+    facList.resize(mxn + 10);
+    invFacList.resize(mxn + 10);
+    facList[0] = facList[1] = invFacList[0] = invFacList[1] = 1;
+    for(int i = 2; i < mxn; i ++) {
+        facList[i] = 1LL * facList[i - 1] * i % mod;
+    }
+    invFacList[mxn - 1] = ExGcdInv(facList[mxn - 1], mod);
+    for(int i = mxn -2; i > 0; i --) {
+        invFacList[i] = 1LL * (i + 1) * invFacList[i + 1] % mod;
+    }
 }
 ```
 
