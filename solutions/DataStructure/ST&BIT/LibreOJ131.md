@@ -35,10 +35,7 @@ void PushDown(int now, int ls, int rs) {
     lasy[now] = 0;
 }
 void PushUp(int now) {
-    while(now) {
-        sum[now] = sum[now << 1] + sum[now << 1 | 1];
-        now >>= 1;
-    }
+    sum[now] = sum[now << 1] + sum[now << 1 | 1];
 }
 void Update(int now, int ls, int rs, int x, int y, int v) {
     if(ls >= rs) return;
