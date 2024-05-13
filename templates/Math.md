@@ -516,72 +516,54 @@ int GaussElMod(int eqn, int xn, int mod)
 ### 线性规划
 
 #### 单纯形法
-`Init` `n` 为变量数， `m` 为方程数，对应初始化`a,b,c`时也要注意
-
-`A[]`与`B[]`表示原始列和基的序号，用于记录换入换出，注意初始化
 
 ```cpp
-const int maxn = 1e3 + 10;
-const int maxm = 100;
-const double inf = 1e20;
-
-struct Simplex
-{
-    // 标准型：min Σcx, s.t. ax=b, x>=0
-    double a[maxm][maxn], b[maxm], c[maxn], z;
-    int B[maxn], A[maxn];
-    int n, m;
-    void Init(int n_, int m_)
-    {
-        n = n_, m = m_;
-        memset(c, 0, sizeof(c));
-        memset(a, 0, sizeof(a));
-        memset(B, 0, sizeof(B));
-        memset(A, 0, sizeof(A));
-        z = 0;
+struct Simplex {
+    // 标准型： max Σcx, s.t. ax<=b, x>=0， m 约束条件个数， n 自由变量个数
+    std::vector<double> b, c;
+    std::vector<std::vector<double> >a;
+    double z;
+    int m, n;
+    void Init(int m_, int n_) {
+        m = m_, n = n_, z = 0;
+        a.resize(m + 10, std::vector<double>(n + 10, 0));
+        b.resize(m + 10, 0);
+        c.resize(n + 10, 0);
     }
-    void Pivot(int k, int l)
-    {
-        std::swap(B[l], A[k]);
-        b[l] /= a[l][k];
+    void Pivot(int l, int e) {
+        b[e] /= a[e][l];
         for(int j = 0; j < n; j ++)
-            if(j != k) a[l][j] /= a[l][k];
-        a[l][k] = 1 / a[l][k];
-        for(int i = 0; i < m; i ++)
-        {
-            if(i == l) continue;
-            b[i] -= a[i][k] * b[l];
+            if(j != l) a[e][j] /= a[e][l];
+        a[e][l] = 1 / a[e][l];
+        for(int i = 0; i < m; i ++) {
+            if(i == e || a[i][l] > -eps && a[i][l] < eps) continue;
+            b[i] -= a[i][l] * b[e];
             for(int j = 0; j < n; j ++)
-                if(j != k) a[i][j] -= a[i][k] * a[l][j];
-            a[i][k] = -a[i][k] * a[l][k];
+                if(j != l) a[i][j] -= a[i][l] * a[e][j];
+            a[i][l] = -a[i][l] * a[e][l];
         }
-        z += c[k] * b[l];
+        z += c[l] * b[e];
         for(int j = 0; j < n; j ++)
-            if(j != k) c[j] -= c[k] * a[l][j];
-        c[k] *= -a[l][k];
+            if(j != l) c[j] -= c[l] * a[e][j];
+        c[l] *= -a[e][l];
     }
-    double Solve()
-    {
-        while(true)
-        {
-            int k = -1, l = -1;
-            double minc = inf;
-            for(int i = 0; i < n; i ++)
-                if(c[i] < minc)
-                {
-                    minc = c[i];
-                    k = i;
+    double Solve() {
+        while(true) {
+            int l = -1, e = -1;
+            double maxc = eps;
+            for(int j = 0; j < n; j ++)
+                if(c[j] > maxc) {
+                    maxc = c[l = j];
                 }
-            if(minc > -eps) return z;
+            if(l == -1) return z;
             double minba = inf;
             for(int i = 0; i < m; i ++)
-                if(a[i][k] > eps && minba > b[i] / a[i][k])
-                {
-                    minba = b[i] / a[i][k];
-                    l = i;
+                if(a[i][l] > eps && minba > b[i] / a[i][l]) {
+                    minba = b[i] / a[i][l];
+                    e = i;
                 }
-            if(l == -1) return inf;
-            Pivot(k, l);
+            if(e == -1) return inf;
+            Pivot(l, e);
         }
     }
 };

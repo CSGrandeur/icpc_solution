@@ -1,8 +1,8 @@
-### `[NOI2008] 志愿者招募`
+### `[ZJOI2013] 防守战线`
 
 > difficulty: 3
 
-处理为对偶问题，即最大标准型
+求对偶就刚好是最大标准型，`Pivot`时`a[i][l] > -eps && a[i][l] < eps`条件比较重要，不然可能超时
 
 ```cpp
 #include<cstdio>
@@ -61,33 +61,35 @@ struct Simplex {
         }
     }
 };
-void BuildSimple(Simplex &spx, int N, int M, std::vector<int> &A, std::vector<int> &L, std::vector<int> &R, std::vector<int> &C) {
-    spx.Init(M, N);
-    for(int i = 0; i < M; i ++) {
-        for(int j = 0; j < N; j ++) {
-            spx.a[i][j] = j >= L[i] - 1 && j <= R[i] - 1;
+void BuildSimple(Simplex &spx, int n, int m, std::vector<double> &C, std::vector<int> &L, std::vector<int> &R, std::vector<double> &D) {
+    spx.Init(n, m);
+    for(int i = 0; i < n; i ++) {
+        for(int j = 0; j < m; j ++) {
+            spx.a[i][j] = i >= L[j] - 1 && i <= R[j] - 1;
         }
         spx.b[i] = C[i];
     }
-    for(int j = 0; j < N; j ++) {
-        spx.c[j] = A[j];
+    for(int j = 0; j < m; j ++) {
+        spx.c[j] = D[j];
     }
 }
 Simplex spx;
-int N, M;
-std::vector<int> L, R, A, C;
+int n, m;
+std::vector<int> L, R;
+std::vector<double> C, D;
 int main() {
-    while(scanf("%d%d", &N, &M) != EOF){
-        A.resize(N);
-        C.resize(M); L.resize(M); R.resize(M); 
-        for(int i = 0; i < N; i ++)
-            scanf("%d", &A[i]);
-        for(int i = 0; i < M; i ++)
-            scanf("%d%d%d", &L[i], &R[i], &C[i]);
-        BuildSimple(spx, N, M, A, L, R, C);
+    
+    int s, t, c;
+    while(scanf("%d%d", &n, &m) != EOF){
+        C.resize(n);
+        L.resize(m); R.resize(m); D.resize(m);
+        for(int i = 0; i < n; i ++)
+            scanf("%lf", &C[i]);
+        for(int i = 0; i < m; i ++)
+            scanf("%d%d%lf", &L[i], &R[i], &D[i]);
+        BuildSimple(spx, n, m, C, L, R, D);
         printf("%d\n", (int)(spx.Solve() + eps));
     }
     return 0;
 }
 ```
-
