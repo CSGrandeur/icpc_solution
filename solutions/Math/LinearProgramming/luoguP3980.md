@@ -24,40 +24,40 @@ struct Simplex {
         b.resize(m + 10, 0);
         c.resize(n + 10, 0);
     }
-    void Pivot(int l, int e) {
-        b[e] /= a[e][l];
+    void Pivot(int e, int l) {
+        b[l] /= a[l][e];
         for(int j = 0; j < n; j ++)
-            if(j != l) a[e][j] /= a[e][l];
-        a[e][l] = 1 / a[e][l];
+            if(j != e) a[l][j] /= a[l][e];
+        a[l][e] = 1 / a[l][e];
         for(int i = 0; i < m; i ++) {
-            if(i == e || a[i][l] > -eps && a[i][l] < eps) continue;
-            b[i] -= a[i][l] * b[e];
+            if(i == l || a[i][e] > -eps && a[i][e] < eps) continue;
+            b[i] -= a[i][e] * b[l];
             for(int j = 0; j < n; j ++)
-                if(j != l) a[i][j] -= a[i][l] * a[e][j];
-            a[i][l] = -a[i][l] * a[e][l];
+                if(j != e) a[i][j] -= a[i][e] * a[l][j];
+            a[i][e] = -a[i][e] * a[l][e];
         }
-        z += c[l] * b[e];
+        z += c[e] * b[l];
         for(int j = 0; j < n; j ++)
-            if(j != l) c[j] -= c[l] * a[e][j];
-        c[l] *= -a[e][l];
+            if(j != e) c[j] -= c[e] * a[l][j];
+        c[e] *= -a[l][e];
     }
     double Solve() {
         while(true) {
-            int l = -1, e = -1;
+            int e = -1, l = -1;
             double maxc = eps;
             for(int j = 0; j < n; j ++)
                 if(c[j] > maxc) {
-                    maxc = c[l = j];
+                    maxc = c[e = j];
                 }
-            if(l == -1) return z;
+            if(e == -1) return z;
             double minba = inf;
             for(int i = 0; i < m; i ++)
-                if(a[i][l] > eps && minba > b[i] / a[i][l]) {
-                    minba = b[i] / a[i][l];
-                    e = i;
+                if(a[i][e] > eps && minba > b[i] / a[i][e]) {
+                    minba = b[i] / a[i][e];
+                    l = i;
                 }
-            if(e == -1) return inf;
-            Pivot(l, e);
+            if(l == -1) return inf;
+            Pivot(e, l);
         }
     }
 };
