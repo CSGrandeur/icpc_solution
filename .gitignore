@@ -3,3 +3,5 @@ workspace
 *.in
 *.out
 *.zip
+
+**/tmp
